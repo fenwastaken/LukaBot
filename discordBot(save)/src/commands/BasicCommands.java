@@ -34,55 +34,6 @@ public class BasicCommands {
 	 */
 
 
-	@BotCom(command = Handler.SETFC , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void setFc(FolkBox fb){
-		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			try {
-				if(fb.hasFolks()){
-					PlayerManager.setPlayer4c(fb.getFolkNbX(0).getDiscriminator(), fb.getArguments().lastElement());
-					Tools.sendMessage(fb.getFolkNbX(0).getNick() + " was " + PlayerManager.getPlayer4c(fb.getFolkNbX(0).getDiscriminator()) + " in a previous life.");
-				}
-				else{
-					Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@BotCom(command = Handler.GETFC , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void getFc(FolkBox fb){
-		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			try {
-				String discriminator = "";
-				String nick = "";
-				if(fb.hasFolks()){
-					discriminator = fb.getFolkNbX(0).getDiscriminator();
-					nick = fb.getFolkNbX(0).getNick();
-				}
-				String fc = PlayerManager.getPlayer4c(discriminator);
-				if(fb.hasFolks()){
-					if(fc.equals("")){
-						Tools.sendMessage("It seems that " + nick + "'s soul is in its first cycle.");
-					}
-					else{
-						Tools.sendMessage("It seems like " + nick + " was " + fc + " in a previous life.");
-					}
-				}
-				else{
-					Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
-
-
 
 	@BotCom(command = Handler.GETAVATAR , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
 	public void getAvatar(FolkBox fb){

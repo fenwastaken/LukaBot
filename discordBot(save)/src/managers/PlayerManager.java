@@ -66,24 +66,6 @@ public class PlayerManager {
 		return ret;
 	}
 	
-	public static void setPlayer4c(String discriminator, String fc) throws SQLException{
-		String sql = "UPDATE player SET fc = ? WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
-		st.setString(1, fc);
-		st.setString(2, discriminator);
-		st.executeUpdate();
-	}
-	
-	public static String getPlayer4c(String discriminator) throws SQLException{
-		String sql = "SELECT fc FROM player WHERE Discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
-		st.setString(1,  discriminator);
-		ResultSet rs = st.executeQuery();
-		String ret = "";
-		if(rs.next()){
-			ret = rs.getString("fc");
-		}
-		return ret;
-	}
+
 	
 }
