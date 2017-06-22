@@ -1,5 +1,6 @@
 package managers;
 
+import java.security.GeneralSecurityException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +30,7 @@ public class CharacterManager {
 		return ret;
 	}
 	
-	public static boolean doesCharacterExistFromNick(String discriminator, String nick) throws SQLException{
+	public static boolean doesCharacterExistFromDiscNick(String discriminator, String nick) throws SQLException{
 		int player_id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "SELECT id FROM character WHERE character_name = ? AND player_id = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
@@ -53,10 +54,12 @@ public class CharacterManager {
 		st.executeUpdate();
 	}
 	
-	public static String getAvatar(String nick) throws SQLException{
-		String sql = "SELECT avatar FROM character WHERE character_name = ?";
+	public static String getAvatar(String discriminator, String nick) throws SQLException{
+		int id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
+		String sql = "SELECT avatar FROM character WHERE character_name = ? AND player_id = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1, nick.toLowerCase());
+		st.setInt(2, id);
 		ResultSet rs = st.executeQuery();
 		String ret = "";
 		if(rs.next()){

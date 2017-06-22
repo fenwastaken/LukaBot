@@ -20,11 +20,12 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "0.1";
+	public static String versionNumber = "0.3";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
-	public static String admin = "Spot-On";
+	public static Vector<String> admin = new Vector<>();
+	
 	public static String key = "!";
 	public static Vector<Method> vMethod;
 	public static Vector<String> vPlayer = new Vector<>();
@@ -42,5 +43,7 @@ public class Handler {
 	final public static String GETAVATAR = "avatar";
 	final public static String GETFC = "4c";
 	final public static String SETFC = "4cset";
+	final public static String SETTHREAD = "threadset";
+	final public static String GETTHREAD = "thread";
 	
 }

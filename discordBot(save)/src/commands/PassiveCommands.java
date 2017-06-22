@@ -32,10 +32,10 @@ public class PassiveCommands {
 	}
 
 	public void addNewCharacter(String discriminator, String name, String nick){
-		if(nick != null && !nick.equals("")){
+
 			if(!Handler.vCharacter.contains("nick")){
 				try {
-					if(!(CharacterManager.doesCharacterExistFromNick(discriminator, nick))){
+					if(!(CharacterManager.doesCharacterExistFromDiscNick(discriminator, nick))){
 						CharacterManager.setCharacter(discriminator, nick);
 						System.out.println("character added for " + discriminator + ": " + nick + ".");
 					}
@@ -44,20 +44,5 @@ public class PassiveCommands {
 					e.printStackTrace();
 				}
 			}
-		}
-		else{
-			nick = name;
-			if(!Handler.vCharacter.contains("nick")){
-				try {
-					if(!(CharacterManager.doesCharacterExistFromNick(discriminator, nick))){
-						CharacterManager.setCharacter(discriminator, nick);
-						System.out.println("character added for " + discriminator + ": " + nick + ".");
-					}
-				} catch (SQLException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 }

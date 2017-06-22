@@ -1,7 +1,9 @@
 package handy;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import annotations.BotCom;
@@ -10,6 +12,10 @@ import annotations.ComType;
 import annotations.Comparison;
 import commands.BasicCommands;
 import commands.CommandManager;
+import managers.ThreadManager;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import objects.Folk;
 
 public class Tools {
 	
@@ -207,10 +213,11 @@ public class Tools {
 
 		ComLvl lvl = ComLvl.NON_PLAYER;
 
-		if(nick.equals(Handler.admin)){
-			lvl = ComLvl.ADMIN;	
+		for(String str : Handler.admin){
+			if(nick.equals(str)){
+				lvl = ComLvl.ADMIN;	
+			}
 		}
-
 		return lvl;
 	}
 
@@ -265,6 +272,62 @@ public class Tools {
 		ret = ret.substring(0, ret.length() - separator.length());
 		return ret;
 		
+	}
+	
+	public static int countThread(){
+		int nbr = -3;
+		try {
+			nbr = ThreadManager.countRow();
+		} catch (SQLException e) {
+			// 
+			e.printStackTrace();
+		}
+		return nbr;
+	}
+	
+	public static Folk getMentionNb(int wanted){
+		Vector<Folk> vecu = Tools.getMentionned();
+		String name = "";
+		String nick = "";
+		String disc = "";
+		String id = "";
+		if(vecu.size()> wanted - 1){
+			id = vecu.elementAt(wanted).getId();
+			disc = vecu.elementAt(wanted).getDiscriminator();
+			nick = Handler.ev.getGuild().getMemberById(vecu.elementAt(0).getId()).getNickname();
+			name = vecu.elementAt(wanted).getName();
+			
+			
+			Folk folk = new Folk(disc, name, nick, id);
+			return folk;
+			
+		}
+		return null;
+	}
+	
+	public static Vector<Folk> getMentionned(){
+		List<User> list = Handler.ev.getMessage().getMentionedUsers();
+		Vector<Folk> ret = new Vector<>();
+		for(User u : list){
+			String name = u.getName();
+			String nick = Handler.ev.getGuild().getMemberById(u.getId()).getNickname();
+			String disc = u.getDiscriminator();
+			String id = u.getId();
+			Folk f = new Folk(disc, name, nick, id);
+			ret.add(f);
+		}
+		return ret;
+	}
+	
+	public static Folk getAuthor(){
+		User auth = Handler.ev.getAuthor();
+		String disc = auth.getDiscriminator();
+		String name = auth.getName();
+		String nick = Handler.ev.getGuild().getMemberById(auth.getId()).getNickname();
+		String id = auth.getId();
+		Folk folk = new Folk(disc, name, nick, id);
+		
+		return folk;
 	}
 	
 }

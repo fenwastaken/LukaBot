@@ -19,7 +19,7 @@ public class PlayerManager {
 	}
 	
 	public static boolean playerExistsFromID(int id) throws SQLException{
-		String sql = "SELECT id FROM player WHERE id = ?";
+		String sql = "SELECT name FROM player WHERE id = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setInt(1, id);
 		ResultSet rs = st.executeQuery();
@@ -66,8 +66,7 @@ public class PlayerManager {
 		return ret;
 	}
 	
-	public static void setPlayer4c(String name, String fc) throws SQLException{
-		String discriminator = getDiscriminatorFromName(name.toLowerCase());
+	public static void setPlayer4c(String discriminator, String fc) throws SQLException{
 		String sql = "UPDATE player SET fc = ? WHERE discriminator = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1, fc);
@@ -75,8 +74,7 @@ public class PlayerManager {
 		st.executeUpdate();
 	}
 	
-	public static String getPlayer4c(String name) throws SQLException{
-		String discriminator = getDiscriminatorFromName(name);
+	public static String getPlayer4c(String discriminator) throws SQLException{
 		String sql = "SELECT fc FROM player WHERE Discriminator = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1,  discriminator);

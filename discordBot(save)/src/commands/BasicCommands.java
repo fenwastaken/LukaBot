@@ -17,16 +17,34 @@ import handy.Handler;
 import handy.Tools;
 import managers.CharacterManager;
 import managers.PlayerManager;
+import managers.ThreadManager;
+import objects.Folk;
+import objects.FolkBox;
 
 public class BasicCommands {
 
+	/*
+	@BotCom(command = Handler.SETTHREAD , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
+	public void setThread(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETTHREAD, Comparison.STARTS_WITH, ComLvl.ADMIN)){
+
+		}
+	}
+	}
+	 */
+
+
 	@BotCom(command = Handler.SETFC , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void setFc(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.SETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			Vector<String> ret = Tools.cuter(message, " ");
+	public void setFc(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
 			try {
-				PlayerManager.setPlayer4c(ret.elementAt(0), ret.elementAt(1));
-				Tools.sendMessage(ret.elementAt(0) + " was " + ret.elementAt(1) + " in a previous life.");
+				if(fb.hasFolks()){
+					PlayerManager.setPlayer4c(fb.getFolkNbX(0).getDiscriminator(), fb.getArguments().lastElement());
+					Tools.sendMessage(fb.getFolkNbX(0).getNick() + " was " + PlayerManager.getPlayer4c(fb.getFolkNbX(0).getDiscriminator()) + " in a previous life.");
+				}
+				else{
+					Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
+				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -35,16 +53,26 @@ public class BasicCommands {
 	}
 
 	@BotCom(command = Handler.GETFC , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void getFc(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.GETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
+	public void getFc(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GETFC, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
 			try {
-				String name = Tools.lastParameter(message, 0);
-				String fc = PlayerManager.getPlayer4c(name);
-				if(fc.equals("")){
-					Tools.sendMessage("It seems that " + name + "'s soul is in its first cycle.");
+				String discriminator = "";
+				String nick = "";
+				if(fb.hasFolks()){
+					discriminator = fb.getFolkNbX(0).getDiscriminator();
+					nick = fb.getFolkNbX(0).getNick();
+				}
+				String fc = PlayerManager.getPlayer4c(discriminator);
+				if(fb.hasFolks()){
+					if(fc.equals("")){
+						Tools.sendMessage("It seems that " + nick + "'s soul is in its first cycle.");
+					}
+					else{
+						Tools.sendMessage("It seems like " + nick + " was " + fc + " in a previous life.");
+					}
 				}
 				else{
-					Tools.sendMessage("It seems like " + name + " was " + fc + " in a previous life.");
+					Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -53,27 +81,31 @@ public class BasicCommands {
 		}
 	}
 
-	/*
-	@BotCom(command = GETAVATAR , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void getAvatar(String message, String discriminator, String nick, String channel){
-		if(check(nick, message, GET_VERSION, Comparison.EQUALS, ComLvl.NON_PLAYER)){
-
-		}
-	}
-	 */
 
 
 
 	@BotCom(command = Handler.GETAVATAR , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void getAvatar(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.GETAVATAR, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			String target = Tools.reBuilder(-1, Tools.cuter(message, " "), " ");
-			if(target.equals("me")){
-				target = nick;
+	public void getAvatar(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GETAVATAR, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
+			String target = "";
+			String disc = "";
+			
+			if(fb.hasFolks()){//
+				Folk folk = fb.getFolkNbX(0);
+				target = folk.getNick();
+				disc = folk.getDiscriminator();
 			}
+			else if(fb.getArguments().elementAt(0).equals("me")){
+				Folk auth = fb.getAuthor();
+				target = auth.getNick();
+				disc = auth.getDiscriminator();
+			}
+
 			try {
-				if(CharacterManager.doesCharacterExistFromNick(target)){
-					String ret = CharacterManager.getAvatar(target);
+				System.out.println("SEARCHING FOR " + disc + ", " + target);
+				if(CharacterManager.doesCharacterExistFromDiscNick(disc, target)){
+					System.out.println("character exists");
+					String ret = CharacterManager.getAvatar(disc, target);
 					if(ret == null){
 						Tools.sendMessage(target + " has no avatar yet.");
 					}
@@ -82,7 +114,13 @@ public class BasicCommands {
 					}
 				}
 				else{
-					Tools.sendMessage("There's no " + target + " registered, " + nick + ".");
+					
+					if(fb.hasFolks()){
+						Tools.sendMessage("There's no " + target + " registered, " + fb.getAuthorNick() + ".");	
+					}
+					else{
+						Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick());
+					}
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -92,24 +130,25 @@ public class BasicCommands {
 	}
 
 	@BotCom(command = Handler.SETAVATAR , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void setAvatar(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.SETAVATAR, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			String avatar = Tools.lastParameter(message, 0);
-
+	public void setAvatar(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETAVATAR, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
+			String avatar = Tools.lastParameter(fb.getMessage(), 0);
+			Folk author = fb.getAuthor();
+			
 			if(avatar.contains("imgur")){
 				if(avatar.contains("?")){
 					avatar = avatar.substring(0, avatar.indexOf("?"));
 				}
 				try {
-					CharacterManager.setAvatar(discriminator, nick, avatar);
-					Tools.sendMessage("Your new avatar is set, " + nick + ".");
+					CharacterManager.setAvatar(author.getDiscriminator(), author.getNick(), avatar);
+					Tools.sendMessage("Your new avatar is set, " + author.getNick() + ".");
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				};
 			}
 			else{
-				Tools.sendMessage("It is not an imgur link, " + nick + ".");
+				Tools.sendMessage("It is not an imgur link, " + author.getNick() + ".");
 			}
 
 
@@ -118,51 +157,49 @@ public class BasicCommands {
 
 
 	@BotCom(command = Handler.HELLO, lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void hello(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.HELLO, Comparison.EQUALS, ComLvl.NON_PLAYER)){
-			Tools.sendMessage("Hello, " + nick + ".");
+	public void hello(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.HELLO, Comparison.EQUALS, ComLvl.NON_PLAYER)){
+			Tools.sendMessage("Hello, " + new FolkBox().getAuthorNick() + ".");
 		}
 	}
 
 	@BotCom(command = Handler.GET_VERSION, lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void getVersion(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.GET_VERSION, Comparison.EQUALS, ComLvl.NON_PLAYER)){
-			Tools.sendMessage("I am " + Handler.botName + ", version " + Handler.versionNumber + ". My current admin is " + Handler.admin + ".");
+	public void getVersion(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GET_VERSION, Comparison.EQUALS, ComLvl.NON_PLAYER)){
+			Tools.sendMessage("I am " + Handler.botName + ", version " + Handler.versionNumber + ". My current admin is " + Handler.admin.firstElement() + ".");
 		}
 	}
 
 	@BotCom(command = Handler.SET_KEY, lvl = ComLvl.ADMIN, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void setKey(String message, String discriminator, String nick, String channel){
-
-		if(Tools.check(nick, message, Handler.SET_KEY, Comparison.STARTS_WITH, ComLvl.ADMIN)){
-			String temp = message.substring(Handler.key.length() + Handler.SET_KEY.length() + 1);
+	public void setKey(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SET_KEY, Comparison.STARTS_WITH, ComLvl.ADMIN)){
+			String temp = fb.getMessage().substring(Handler.key.length() + Handler.SET_KEY.length() + 1);
 			if(temp.startsWith("/")){
 				temp = "!";
 			}
 			Handler.key = temp;
 			Tools.sendMessage("My new key is now " + Handler.key + ".");
 		}
-
 	}
 
 	@BotCom(command = Handler.GET_HELP, lvl = ComLvl.NON_PLAYER, type = ComType.BOTH, category = ComCategory.BASIC)
-	public void getHelp(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.GET_HELP, Comparison.EQUALS, ComLvl.NON_PLAYER)){
+	public void getHelp(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GET_HELP, Comparison.EQUALS, ComLvl.NON_PLAYER)){
 			Tools.sendMessage(Tools.helpMaker());
 		}
 	}
 
 
 	@BotCom(command = Handler.GET_ACC, lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void getAcc(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.GET_ACC, Comparison.EQUALS, ComLvl.NON_PLAYER)){
-			Tools.sendMessage("Your accreditation level is " + ComLvl.ADMIN.getString(Tools.levelChecker(nick).getValue()).toLowerCase() + ", " + nick + ".");
+	public void getAcc(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GET_ACC, Comparison.EQUALS, ComLvl.NON_PLAYER)){
+			Tools.sendMessage("Your accreditation level is " + ComLvl.ADMIN.getString(Tools.levelChecker(fb.getAuthorNick()).getValue()).toLowerCase() + ", " + fb.getAuthorNick() + ".");
 		}
 	}
 	@BotCom(command = Handler.YOUTUBE, lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void youtube(String message, String discriminator, String nick, String channel){
-		if(Tools.check(nick, message, Handler.YOUTUBE, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			Vector<String> param = Tools.cuter(message, " ");
+	public void youtube(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.YOUTUBE, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
+			Vector<String> param = fb.getArguments();
 
 			String search = "";
 
@@ -186,10 +223,6 @@ public class BasicCommands {
 				in.close();
 
 				while(ret.equals("") || ret.equals(merde)){
-
-
-
-
 					int start = all.indexOf("/watch?v=");
 					int end = all.indexOf("\"", start);
 					ret = all.substring(start, end);
@@ -197,7 +230,7 @@ public class BasicCommands {
 					all = all.substring(start + 8);
 				}
 
-				Tools.sendMessage("Here's the result, " + nick + " : " + "https://www.youtube.com" + ret);
+				Tools.sendMessage("Here's the result, " + fb.getAuthorNick() + " : " + "https://www.youtube.com" + ret);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -207,10 +240,9 @@ public class BasicCommands {
 
 
 	@BotCom(command = Handler.ROLL, lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
-	public void roll(String message, String discriminator, String nick, String channel){
-
-		if(Tools.check(nick, message, Handler.ROLL, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
-			String param = Tools.lastParameter(message, 0).toLowerCase();
+	public void roll(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.ROLL, Comparison.STARTS_WITH, ComLvl.NON_PLAYER)){
+			String param = Tools.lastParameter(fb.getMessage(), 0).toLowerCase();
 			if(param.matches("[0-9]*d[0-9]*[+-][0-9]*") || param.matches("[0-9]*d[0-9]*")){
 				try{
 					int dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
@@ -271,21 +303,46 @@ public class BasicCommands {
 						overkill += ".";
 						Tools.sendMessage(overkill);
 					}
-
-
-
-
-					Tools.sendMessage(nick + " rolled " + dt.roll().toString());
+					Tools.sendMessage(fb.getAuthorNick() + " rolled " + dt.roll().toString());
 				}
 				catch(NumberFormatException e){
 					System.out.println("NUMBERFORMATEXCEPTION\n " + e.getMessage());
 				}
 			}
 			else{
-				Tools.sendMessage("Your dice must be built like: xdy or xdy+z where x, y and z are integers, " + nick + ".");
+				Tools.sendMessage("Your dice must be built like: xdy or xdy+z where x, y and z are integers, " + fb.getAuthorNick() + ".");
 			}
 
 		}		
+	}
+
+	@BotCom(command = Handler.GETTHREAD , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.BASIC)
+	public void getThread(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.GETTHREAD, Comparison.EQUALS, ComLvl.NON_PLAYER)){
+			int total = Tools.countThread();
+			try {
+				String thread = ThreadManager.getThread(total);
+				Tools.sendMessage("Thread " + total + " link: " + thread);
+			} catch (SQLException e) {
+				// 
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@BotCom(command = Handler.SETTHREAD , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
+	public void setThread(FolkBox fb){
+		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETTHREAD, Comparison.STARTS_WITH, ComLvl.ADMIN)){
+			String link = Tools.cuter(fb.getMessage(), " ").elementAt(0);
+			try {
+				ThreadManager.setThread(link);
+				int total = Tools.countThread();
+				Tools.sendMessage("New thread added! Number of threads = " + total);
+			} catch (SQLException e) {
+				// 
+				e.printStackTrace();
+			}
+		}
 	}
 
 }
