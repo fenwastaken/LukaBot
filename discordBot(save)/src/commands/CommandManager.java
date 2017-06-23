@@ -1,14 +1,20 @@
 package commands;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
+
+import com.mashape.unirest.request.GetRequest;
 
 import annotations.BotCom;
 import annotations.ComType;
 import discordBot.Details;
 import handy.Handler;
 import handy.Tools;
+import managers.CharacterManager;
+import managers.PlayerManager;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -23,9 +29,6 @@ public class CommandManager extends ListenerAdapter{
 	}
 
 	public void onMessageReceived(MessageReceivedEvent event){
-		Handler.admin.add("Spot-On");
-		Handler.admin.add("Daybreak");
-
 		Handler.ev = event;
 		Handler.channel = event.getTextChannel();
 		//System.out.println("channel == " + Handler.channel.getName());
@@ -41,6 +44,7 @@ public class CommandManager extends ListenerAdapter{
 		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
 		+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
 
+		
 		if(!fb.getAuthor().getDiscriminator().equals(Details.botDicriminator)){
 			PassiveCommands pc = new PassiveCommands(fb.getAuthor().getDiscriminator(), fb.getAuthor().getName(), fb.getAuthorNick());
 

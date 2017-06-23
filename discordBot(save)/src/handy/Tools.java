@@ -11,14 +11,17 @@ import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
 import commands.BasicCommands;
-import commands.CommandManager;
+import managers.CharacterManager;
+import managers.PlayerManager;
 import managers.ThreadManager;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import objects.Folk;
+import objects.FolkBox;
+import ohdata.OHRoles;
 
 public class Tools {
-	
+
 	public static boolean isNumeric(String str)  
 	{  
 		try  
@@ -48,10 +51,10 @@ public class Tools {
 	}
 
 	public static String helpMaker(){
-		Vector<String> vBasic = new Vector<String>();
-		Vector<String> vPlayerC = new Vector<String>();
-		Vector<String> vIngame = new Vector<String>();
-		Vector<String> vGM = new Vector<String>();
+		Vector<String> vUsers = new Vector<String>();
+		Vector<String> vPlayers = new Vector<String>();
+		Vector<String> vGameMasters = new Vector<String>();
+		Vector<String> vTrusted = new Vector<String>();
 		Vector<String> vAdministration = new Vector<String>();
 
 		Method[] methods = BasicCommands.class.getMethods();
@@ -68,23 +71,23 @@ public class Tools {
 
 					switch(bc.category()){
 
-					case BASIC:
-						vBasic.add(command);
+					case USERS:
+						vUsers.add(command);
 						break;
 
-					case PLAYER_CREATION:
-						vPlayerC.add(command);
+					case PLAYERS:
+						vPlayers.add(command);
 						break;
 
-					case INGAME:
-						vIngame.add(command);
+					case GAMEMASTERS:
+						vGameMasters.add(command);
 						break;
 
-					case GM:
-						vGM.add(command);
+					case TRUSTED:
+						vTrusted.add(command);
 						break;
 
-					case ADMINISTRATION:
+					case ADMINS:
 						vAdministration.add(command);
 						break;
 
@@ -93,43 +96,43 @@ public class Tools {
 			}
 		}
 
-		Collections.sort(vBasic);
-		Collections.sort(vPlayerC);
-		Collections.sort(vIngame);
-		Collections.sort(vGM);
+		Collections.sort(vUsers);
+		Collections.sort(vPlayers);
+		Collections.sort(vGameMasters);
+		Collections.sort(vTrusted);
 		Collections.sort(vAdministration);
 
 
 		String ret = "";
 
-		if(vBasic.size() > 0){
-			ret += "Basic: ";
+		if(vUsers.size() > 0){
+			ret += "Users: ";
 
-			for(String str : vBasic){
+			for(String str : vUsers){
 				ret += str + ", ";
 			}
 		}
 
-		if(vPlayerC.size() > 0){
-			ret += "Player Creation: ";
+		if(vPlayers.size() > 0){
+			ret += "Players: ";
 
-			for(String str : vPlayerC){
+			for(String str : vPlayers){
 				ret += str + ", ";
 			}
 		}
 
-		if(vIngame.size() > 0){
-			ret += "Ingame: ";
+		if(vGameMasters.size() > 0){
+			ret += "Game Masters: ";
 
-			for(String str : vIngame){
+			for(String str : vGameMasters){
 				ret += str + ", ";
 			}
 		}
 
-		if(vGM.size() > 0){
-			ret += "GM: ";
+		if(vTrusted.size() > 0){
+			ret += "Trusted: ";
 
-			for(String str : vGM){
+			for(String str : vTrusted){
 				ret += str + ", ";
 			}
 		}
@@ -145,7 +148,7 @@ public class Tools {
 		ret = ret.substring(0, ret.length() - 2);
 		ret += ".";
 
-		return (vBasic.size() + vPlayerC.size() + vIngame.size() + vGM.size() + vAdministration.size()) + " commands: " + ret;
+		return (vUsers.size() + vPlayers.size() + vGameMasters.size() + vTrusted.size() + vAdministration.size()) + " commands: " + ret;
 
 	}
 
@@ -162,7 +165,7 @@ public class Tools {
 	 * @param comparison
 	 * @return
 	 */
-	public static boolean check(String nick, String message, String command, Comparison comparison, ComLvl minLvl){
+	public static boolean check(String discriminator, String message, String command, Comparison comparison, ComLvl minLvl){
 		boolean ret = false;
 
 		switch(comparison){
@@ -190,10 +193,12 @@ public class Tools {
 			ret = false;
 		}
 
-		ComLvl senderLvl = levelChecker(nick);
+		if(ret == true){//no need to check permission if no command is used beforehand
+			ComLvl senderLvl = levelChecker(discriminator);
 
-		if(senderLvl.getValue() > minLvl.getValue()){
-			ret = false;
+			if(senderLvl.getValue() > minLvl.getValue()){
+				ret = false;
+			}
 		}
 
 		return ret;
@@ -209,16 +214,49 @@ public class Tools {
 	 * @param nick
 	 * @return
 	 */
-	public static ComLvl levelChecker(String nick){
-
-		ComLvl lvl = ComLvl.NON_PLAYER;
-
-		for(String str : Handler.admin){
-			if(nick.equals(str)){
-				lvl = ComLvl.ADMIN;	
+	public static ComLvl levelChecker(String discriminator){
+		ComLvl ret = null;
+		try {
+			int dbLvl = PlayerManager.getPlayerRank(discriminator);
+			FolkBox fb = new FolkBox();
+			if(CharacterManager.hasAvatar(discriminator) 
+					&& fb.getAuthor().hasRole(OHRoles.PLAYER) 
+					&& dbLvl > 3 
+					&& dbLvl != 5){
+				PlayerManager.updatePlayerRank(3, discriminator);
+				System.out.println(discriminator + " is now rank 3");
+				dbLvl = 3;
 			}
+			switch(dbLvl){
+			case 5:
+				ret = ComLvl.BANNED;
+				break;
+			case 4:
+				ret = ComLvl.USER;
+				break;
+			case 3:
+				ret = ComLvl.PLAYER;
+				break;
+			case 2:
+				ret = ComLvl.GAMEMASTER;
+				break;
+			case 1:
+				ret = ComLvl.TRUSTED;
+				break;
+			case 0:
+				ret = ComLvl.ADMIN;
+				break;
+			default:
+				ret = ComLvl.USER;
+				break;
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		return lvl;
+		
+		System.out.println(discriminator + " " + ret.getString(ret.getValue()));
+		return ret;
 	}
 
 	/**
@@ -229,11 +267,11 @@ public class Tools {
 	 * @return
 	 */
 	public static String lastParameter(String message, int paramNumber){
-		Vector<String> vec = cuter(message, " ");
+		Vector<String> vec = cutter(message, " ");
 		return vec.elementAt(vec.size() - (1 - paramNumber));
 	}
 
-	public static Vector<String> cuter(String message, String separator){
+	public static Vector<String> cutter(String message, String separator){
 		Vector<String> vec = new Vector<String>();
 		int start = message.indexOf(separator) + 1;
 		int stop = message.indexOf(separator, start);
@@ -251,7 +289,7 @@ public class Tools {
 
 		return vec;
 	}
-	
+
 	/**
 	 * fooking discord allowing names with spaces is fucking mu cuter
 	 * @param wholeParameter
@@ -260,7 +298,7 @@ public class Tools {
 	 * @return
 	 */
 	public static String reBuilder(int wholeParameter, Vector<String> vec, String separator){
-		
+
 		String ret = "";
 		if(wholeParameter != -1){
 			vec.remove(wholeParameter);
@@ -268,12 +306,12 @@ public class Tools {
 		for(String str : vec){
 			ret += str + separator;
 		}
-		
+
 		ret = ret.substring(0, ret.length() - separator.length());
 		return ret;
-		
+
 	}
-	
+
 	public static int countThread(){
 		int nbr = -3;
 		try {
@@ -284,7 +322,7 @@ public class Tools {
 		}
 		return nbr;
 	}
-	
+
 	public static Folk getMentionNb(int wanted){
 		Vector<Folk> vecu = Tools.getMentionned();
 		String name = "";
@@ -296,15 +334,15 @@ public class Tools {
 			disc = vecu.elementAt(wanted).getDiscriminator();
 			nick = Handler.ev.getGuild().getMemberById(vecu.elementAt(0).getId()).getNickname();
 			name = vecu.elementAt(wanted).getName();
-			
-			
-			Folk folk = new Folk(disc, name, nick, id);
+			List<Role> lr = Handler.ev.getGuild().getMemberById(id).getRoles();
+
+			Folk folk = new Folk(disc, name, nick, id, lr);
 			return folk;
-			
+
 		}
 		return null;
 	}
-	
+
 	public static Vector<Folk> getMentionned(){
 		List<User> list = Handler.ev.getMessage().getMentionedUsers();
 		Vector<Folk> ret = new Vector<>();
@@ -313,21 +351,23 @@ public class Tools {
 			String nick = Handler.ev.getGuild().getMemberById(u.getId()).getNickname();
 			String disc = u.getDiscriminator();
 			String id = u.getId();
-			Folk f = new Folk(disc, name, nick, id);
+			List<Role> lr = Handler.ev.getGuild().getMemberById(id).getRoles();					
+			Folk f = new Folk(disc, name, nick, id, lr);
 			ret.add(f);
 		}
 		return ret;
 	}
-	
+
 	public static Folk getAuthor(){
 		User auth = Handler.ev.getAuthor();
 		String disc = auth.getDiscriminator();
 		String name = auth.getName();
 		String nick = Handler.ev.getGuild().getMemberById(auth.getId()).getNickname();
 		String id = auth.getId();
-		Folk folk = new Folk(disc, name, nick, id);
-		
+		List<Role> lr = Handler.ev.getGuild().getMemberById(id).getRoles();
+		Folk folk = new Folk(disc, name, nick, id, lr);
+
 		return folk;
 	}
-	
+
 }

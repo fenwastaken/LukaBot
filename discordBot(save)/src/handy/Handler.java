@@ -24,8 +24,7 @@ public class Handler {
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
-	public static Vector<String> admin = new Vector<>();
-	
+	public static String admin = "Spot-On";
 	public static String key = "!";
 	public static Vector<Method> vMethod;
 	public static Vector<String> vPlayer = new Vector<>();

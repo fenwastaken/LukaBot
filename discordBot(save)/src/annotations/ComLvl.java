@@ -2,7 +2,7 @@ package annotations;
 
 public enum ComLvl {
 
-	 ADMIN(0), GM(1), PLAYER(2), NON_PLAYER(3), BANNED(4);
+	 ADMIN(0), TRUSTED(1), GAMEMASTER(2),  PLAYER(3), USER(4), BANNED(5);
 
 	  private int value;    
 
@@ -23,16 +23,19 @@ public enum ComLvl {
 			ret = "ADMIN";
 			break;
 		case 1:
-			ret = "GM";
+			ret = "TRUSTED";
 			break;
 		case 2:
+			ret = "GAMEMASTER";
+			break;
+		case 3:
 			ret = "PLAYER";
 			break;
-		case 4:
+		case 5:
 			ret = "BANNED";
 			break;
 		default:
-			ret = "NON_PLAYER";
+			ret = "USER";
 		}
 		
 		return ret;

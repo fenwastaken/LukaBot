@@ -10,11 +10,12 @@ import database.PostgreSQLJDBC;
 public class PlayerManager {
 
 	public static void setPlayer(String discriminator, String name) throws SQLException{
-		String sql = "INSERT INTO player (discriminator, name, date, active) VALUES (?, ?, CURRENT_DATE, ?)";
+		String sql = "INSERT INTO player (discriminator, name, date, active, user_rank) VALUES (?, ?, CURRENT_DATE, ?, ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.setString(2, name.toLowerCase());
 		st.setBoolean(3, true);
+		st.setInt(4, 4);
 		st.executeUpdate();
 	}
 	
@@ -66,6 +67,39 @@ public class PlayerManager {
 		return ret;
 	}
 	
-
 	
+	public static void updatePlayerDate(String discriminator) throws SQLException{
+		String sql = "UPDATE player SET last_seen = CURRENT_DATE WHERE discriminator = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, discriminator);
+		st.executeUpdate();
+	}
+
+	public static void updatePlayerName(String name, String discriminator) throws SQLException{
+		String sql = "UPDATE player SET name = ? WHERE discriminator = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, name);
+		st.setString(2, discriminator);
+		st.executeUpdate();
+	}
+	
+	public static void updatePlayerRank(int rank, String discriminator) throws SQLException{
+		String sql = "UPDATE player SET user_rank = ? WHERE discriminator = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setInt(1, rank);
+		st.setString(2, discriminator);
+		st.executeUpdate();
+	}
+	
+	public static int getPlayerRank(String discriminator) throws SQLException{
+		String sql = "SELECT user_rank FROM player WHERE discriminator = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, discriminator);
+		ResultSet rs = st.executeQuery();
+		int rank = -2;
+		if(rs.next()){
+			rank = rs.getInt("user_rank");
+		}
+		return rank;
+	}
 }

@@ -24,10 +24,17 @@ public class PassiveCommands {
 					System.out.println("added " + discriminator);
 				}
 				Handler.vPlayer.add(discriminator);
+				PlayerManager.updatePlayerName(name, discriminator);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		try {
+			PlayerManager.updatePlayerDate(discriminator);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

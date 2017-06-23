@@ -29,7 +29,7 @@ public class CharacterManager {
 		}
 		return ret;
 	}
-	
+
 	public static boolean doesCharacterExistFromDiscNick(String discriminator, String nick) throws SQLException{
 		int player_id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "SELECT id FROM character WHERE character_name = ? AND player_id = ?";
@@ -53,7 +53,7 @@ public class CharacterManager {
 		st.setString(3, character_name.toLowerCase());
 		st.executeUpdate();
 	}
-	
+
 	public static String getAvatar(String discriminator, String nick) throws SQLException{
 		int id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "SELECT avatar FROM character WHERE character_name = ? AND player_id = ?";
@@ -64,6 +64,34 @@ public class CharacterManager {
 		String ret = "";
 		if(rs.next()){
 			ret = rs.getString("avatar");
+		}
+		return ret;
+	}
+
+	public static int getCharacterNbFromDiscriminator(String discriminator) throws SQLException{
+		String sql = "SELECT id FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, discriminator);
+		ResultSet rs = st.executeQuery();
+		int nb = 0;
+		while(rs.next()){
+			nb++;
+		}
+		System.out.println(nb + " characters!");
+		return nb;
+	}
+	
+	public static boolean hasAvatar(String discriminator) throws SQLException{
+		String sql = "SELECT avatar FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, discriminator);
+		ResultSet rs = st.executeQuery();
+		boolean ret = false;
+		while(rs.next()){
+			String avatar = rs.getString("avatar");
+			if(avatar != null && avatar.length() > 0){
+				ret = true;
+			}
 		}
 		return ret;
 	}

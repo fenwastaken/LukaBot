@@ -9,6 +9,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 public class FolkBox {
 
 	private String AuthorNick;
+	private String AuthorDiscriminator;
 	private MessageReceivedEvent ev;
 	private Folk author;
 	private Vector<Folk> mentionned;
@@ -20,8 +21,9 @@ public class FolkBox {
 		this.author = Tools.getAuthor();
 		this.mentionned = Tools.getMentionned();
 		this.message = ev.getMessage().getContent();
-		this.arguments = Tools.cuter(message, " ");
+		this.arguments = Tools.cutter(message, " ");
 		this.AuthorNick = this.author.getNick();
+		this.AuthorDiscriminator = this.getAuthor().getDiscriminator();
 	}
 
 	public MessageReceivedEvent getEv() {
@@ -70,6 +72,14 @@ public class FolkBox {
 
 	public void setAuthorNick(String authorNick) {
 		AuthorNick = authorNick;
+	}
+
+	public String getAuthorDiscriminator() {
+		return AuthorDiscriminator;
+	}
+
+	public void setAuthorDiscriminator(String authorDiscriminator) {
+		AuthorDiscriminator = authorDiscriminator;
 	}
 
 	public boolean hasXFolksMin(int x){
