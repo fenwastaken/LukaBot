@@ -194,7 +194,7 @@ public class BasicCommands {
 	public void roll(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ROLL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String param = Tools.lastParameter(fb.getMessage(), 0).toLowerCase();
-			if(param.matches("[0-9]*d[0-9]*[+-][0-9]*") || param.matches("[0-9]*d[0-9]*")){
+			if(param.matches("[0-9]+d[0-9]+[+-][0-9]+") || param.matches("[0-9]+d[0-9]+")){
 				try{
 					int dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
 
