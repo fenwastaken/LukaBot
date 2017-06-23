@@ -36,7 +36,7 @@ public class DiceType {
 	public DiceResult roll(){
 
 		String ret = "";
-		modifier = modifier * number;
+		modifier = modifier;
 		int total = 0;
 		for(int i = 0; i < this.number ; i++){
 
