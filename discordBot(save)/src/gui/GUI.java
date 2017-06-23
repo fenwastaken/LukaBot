@@ -17,6 +17,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -26,6 +27,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import handy.Handler;
 import net.dv8tion.jda.core.JDA;
 
 public class GUI extends JFrame{
@@ -37,8 +39,8 @@ public class GUI extends JFrame{
 	public GUI(JDA jda){
 
 		this.jda = jda;
-		this.setSize(200, 200);
-		this.setTitle("Luka");
+		this.setSize(250, 200);
+		this.setTitle(Handler.botName + ", V" + Handler.versionNumber);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
@@ -53,6 +55,8 @@ public class GUI extends JFrame{
 		zoneClient.setLayout(new BoxLayout(zoneClient, BoxLayout.Y_AXIS));
 		lab.setAlignmentX(CENTER_ALIGNMENT);
 		bt.setAlignmentX(CENTER_ALIGNMENT);
+		
+		lab.setBorder(BorderFactory.createBevelBorder(0));
 		
 		zoneClient.add(lab);
 		zoneClient.add(Box.createVerticalGlue());
