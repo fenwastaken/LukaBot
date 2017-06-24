@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 public class PostgreSQLJDBC {
 
-	public static Connection cnt = ;
+	public static Connection cnt = null;
 	public static String dbName = "";
 	public static String host = "";
 	public static String port = "";
