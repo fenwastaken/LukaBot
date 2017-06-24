@@ -23,16 +23,51 @@ import objects.FolkBox;
 
 public class BasicCommands {
 
-	/*
-	@BotCom(command = Handler.SETTHREAD , lvl = ComLvl.NON_PLAYER, type = ComType.MSG, category = ComCategory.ADMINISTRATION)
-	public void setThread(FolkBox fb){
-		if(Tools.check(fb.getAuthorNick(), fb.getMessage(), Handler.SETTHREAD, Comparison.STARTS_WITH, ComLvl.ADMIN)){
 
+	@BotCom(command = Handler.LAST_SEEN , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void lastSeen(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.LAST_SEEN, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			if(fb.hasFolks()){
+				try {
+					String discriminator = fb.getFolkNbX(0).getDiscriminator();
+					String nick = fb.getFolkNbX(0).getNick();
+					String ret = PlayerManager.getDate(discriminator);
+					Tools.sendMessage(nick + " was last seen " + ret + " ago.");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
-	}
-	 */
 
+	@BotCom(command = Handler.GET_CHARACTERS , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void getCharacters(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_CHARACTERS, Comparison.CONTAINS, ComLvl.PLAYER)){
+			String discriminator;
+			String name = "";
+			if(fb.hasFolks()){
+				discriminator = fb.getFolkNbX(0).getDiscriminator();
+				name = fb.getFolkNbX(0).getNick();
+			}
+			else{
+				discriminator = fb.getAuthorDiscriminator();
+				name = fb.getAuthorNick();
+			}
+			try {
+				Vector<String>vec = CharacterManager.getCharacterNamesFromDiscriminator(discriminator);
+				String ret = "";
+				for(String str : vec){
+					ret += str + ", ";
+				}
+				ret = ret.substring(0, ret.length()-2) + ".";
+				Tools.sendMessage(name + " has " + CharacterManager.getCharacterNbFromDiscriminator(discriminator) + " character(s): " + ret);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 
 	@BotCom(command = Handler.GETAVATAR , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
@@ -40,7 +75,7 @@ public class BasicCommands {
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GETAVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String target = "";
 			String disc = "";
-			
+
 			if(fb.hasFolks()){//
 				Folk folk = fb.getFolkNbX(0);
 				target = folk.getNick();
@@ -65,7 +100,7 @@ public class BasicCommands {
 					}
 				}
 				else{
-					
+
 					if(fb.hasFolks()){
 						Tools.sendMessage("There's no " + target + " registered, " + fb.getAuthorNick() + ".");	
 					}
@@ -85,7 +120,7 @@ public class BasicCommands {
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SETAVATAR, Comparison.STARTS_WITH, ComLvl.USER)){
 			String avatar = Tools.lastParameter(fb.getMessage(), 0);
 			Folk author = fb.getAuthor();
-			
+
 			if(avatar.contains("imgur")){
 				if(avatar.contains("?")){
 					avatar = avatar.substring(0, avatar.indexOf("?"));
@@ -143,8 +178,19 @@ public class BasicCommands {
 
 	@BotCom(command = Handler.GET_ACC, lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void getAcc(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_ACC, Comparison.EQUALS, ComLvl.USER)){
-			Tools.sendMessage("Your accreditation level is " + ComLvl.ADMIN.getString(Tools.levelChecker(fb.getAuthorDiscriminator()).getValue()) + ", " + fb.getAuthorNick() + ".");
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_ACC, Comparison.CONTAINS, ComLvl.USER)){
+			String disc;
+			String name;
+			if(fb.hasFolks()){
+				disc = fb.getFolkNbX(0).getDiscriminator();
+				name = fb.getFolkNbX(0).getNick() + "'s ";
+			}
+			else{
+				disc = fb.getAuthorDiscriminator();
+				name = "Your ";
+			}
+			Tools.sendMessage(name + "accreditation level is " 
+					+ ComLvl.ADMIN.getString(Tools.levelChecker(disc).getValue()) + ", " + fb.getAuthorNick() + ".");
 		}
 	}
 	@BotCom(command = Handler.YOUTUBE, lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)

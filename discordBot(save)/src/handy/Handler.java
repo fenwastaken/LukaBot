@@ -20,13 +20,15 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "0.5b";
+	public static String versionNumber = "0.6";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
 	public static String admin = "Spot-On";
 	public static String key = "!";
-	public static Vector<Method> vMethod;
+	public static boolean locked = false;
+	public static Vector<Method> vBasicMethods;
+	public static Vector<Method> vPermaMethods;
 	public static Vector<String> vPlayer = new Vector<>();
 	public static Vector<String> vCharacter = new Vector<>();
 
@@ -44,5 +46,8 @@ public class Handler {
 	final public static String SETFC = "4cset";
 	final public static String SETTHREAD = "threadset";
 	final public static String GETTHREAD = "thread";
+	final public static String GET_CHARACTERS = "character";
+	final public static String LAST_SEEN = "lastseen";
+	final public static String LOCK = "luka";
 	
 }

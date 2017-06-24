@@ -4,6 +4,7 @@ import java.security.GeneralSecurityException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
 
 import database.PostgreSQLJDBC;
 
@@ -81,6 +82,19 @@ public class CharacterManager {
 		return nb;
 	}
 	
+	
+	public static Vector<String> getCharacterNamesFromDiscriminator(String discriminator) throws SQLException{
+		String sql = "SELECT character_name FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, discriminator);
+		ResultSet rs = st.executeQuery();
+		Vector<String>ret = new Vector<>();
+		while(rs.next()){
+			ret.add(rs.getString("character_name"));
+		}
+		System.out.println("RET SIZE " + ret.size());
+		return ret;
+	}
 	public static boolean hasAvatar(String discriminator) throws SQLException{
 		String sql = "SELECT avatar FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);

@@ -39,7 +39,7 @@ public class GUI extends JFrame{
 	public GUI(JDA jda){
 
 		this.jda = jda;
-		this.setSize(250, 200);
+		this.setSize(250, 250);
 		this.setTitle(Handler.botName + ", V" + Handler.versionNumber);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
@@ -58,9 +58,11 @@ public class GUI extends JFrame{
 		
 		lab.setBorder(BorderFactory.createBevelBorder(0));
 		
+		zoneClient.add(Box.createVerticalGlue());
 		zoneClient.add(lab);
 		zoneClient.add(Box.createVerticalGlue());
 		zoneClient.add(bt);
+		zoneClient.add(Box.createVerticalGlue());
 		bt.addActionListener(new appActionListener());
 		String link = jda.getSelfUser().getAvatarUrl();
 		try {

@@ -11,6 +11,7 @@ import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
 import commands.BasicCommands;
+import commands.PermaCommands;
 import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
@@ -40,12 +41,21 @@ public class Tools {
 	}
 
 	public static void setMethodVector(){
-		Handler.vMethod = new Vector<Method>();
-		Method[] methods = BasicCommands.class.getMethods();
-
-		for (Method m : methods){
+		Handler.vBasicMethods = new Vector<Method>();
+		Handler.vPermaMethods = new Vector<Method>();
+		
+		Method[] basicMethods = BasicCommands.class.getMethods();
+		Method[] permaMethods = PermaCommands.class.getMethods();
+		
+		for (Method m : basicMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
-				Handler.vMethod.add(m);
+				Handler.vBasicMethods.add(m);
+			}
+		}
+		
+		for (Method m : permaMethods){
+			if (m.isAnnotationPresent(BotCom.class)){
+				Handler.vPermaMethods.add(m);
 			}
 		}
 	}
@@ -57,9 +67,23 @@ public class Tools {
 		Vector<String> vTrusted = new Vector<String>();
 		Vector<String> vAdministration = new Vector<String>();
 
-		Method[] methods = BasicCommands.class.getMethods();
+		Method[] methods1 = BasicCommands.class.getMethods();
+		Method[] methods2 = PermaCommands.class.getMethods();
 
-		for (Method m : methods){
+		Vector<Method[]> vecMethods = new Vector<>();
+		Vector<Method> vecMethodsAll = new Vector<>();
+		
+		vecMethods.add(methods1);
+		vecMethods.add(methods2);
+		
+		for(Method[] meth : vecMethods){
+			for(Method m : meth){
+				vecMethodsAll.add(m);
+			}
+		}
+		
+
+		for (Method m : vecMethodsAll){
 			if (m.isAnnotationPresent(BotCom.class)){
 				BotCom bc = m.getAnnotation(BotCom.class);
 

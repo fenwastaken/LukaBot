@@ -10,7 +10,7 @@ import database.PostgreSQLJDBC;
 public class PlayerManager {
 
 	public static void setPlayer(String discriminator, String name) throws SQLException{
-		String sql = "INSERT INTO player (discriminator, name, date, active, user_rank) VALUES (?, ?, CURRENT_DATE, ?, ?)";
+		String sql = "INSERT INTO player (discriminator, name, date, active, user_rank) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.setString(2, name.toLowerCase());
@@ -69,7 +69,7 @@ public class PlayerManager {
 	
 	
 	public static void updatePlayerDate(String discriminator) throws SQLException{
-		String sql = "UPDATE player SET last_seen = CURRENT_DATE WHERE discriminator = ?";
+		String sql = "UPDATE player SET last_seen = CURRENT_TIMESTAMP WHERE discriminator = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.executeUpdate();
@@ -101,5 +101,17 @@ public class PlayerManager {
 			rank = rs.getInt("user_rank");
 		}
 		return rank;
+	}
+	
+	public static String getDate(String name) throws SQLException{
+		String sql = "SELECT name, DATE_TRUNC('seconds', CURRENT_TIMESTAMP - last_seen) AS time FROM player WHERE discriminator = ? ORDER BY time;";
+		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		st.setString(1, name);
+		ResultSet rs = st.executeQuery();
+		String ret = "";
+		if(rs.next()){
+			ret = rs.getString("time");
+		}
+		return ret;
 	}
 }

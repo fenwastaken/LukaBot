@@ -31,34 +31,45 @@ public class CommandManager extends ListenerAdapter{
 	public void onMessageReceived(MessageReceivedEvent event){
 		Handler.ev = event;
 		Handler.channel = event.getTextChannel();
-		//System.out.println("channel == " + Handler.channel.getName());
-		//String message = Handler.ev.getMessage().getContent().toString();
-		//String author = Handler.ev.getMessage().getAuthor().getName();
-		//String name = Handler.ev.getAuthor().getName();
-		//String discriminator = Handler.ev.getAuthor().getDiscriminator();
-		//String nick = Handler.ev.getMessage().getMember().getNickname();
-		//String channel = Handler.ev.getMessage().getChannel().getName();
 
+		//that fb goes through all methods
 		FolkBox fb = new FolkBox();
-		
-		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
-		+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
 
-		
+		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
+				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
+
+
 		if(!fb.getAuthor().getDiscriminator().equals(Details.botDicriminator)){
 			PassiveCommands pc = new PassiveCommands(fb.getAuthor().getDiscriminator(), fb.getAuthor().getName(), fb.getAuthorNick());
 
-			BasicCommands basic = new BasicCommands();
-			for(Method m : Handler.vMethod){
+			//basic
+			if(!Handler.locked){
+				BasicCommands basic = new BasicCommands();
+				for(Method m : Handler.vBasicMethods){
+					try {
+						BotCom bc = m.getAnnotation(BotCom.class);
+						if(bc.type() == ComType.MSG || bc.type() == ComType.BOTH){ //checks that the command is intended for public message
+							m.invoke(basic, fb);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				//other commands go there
+			}
+			//perma
+			PermaCommands perma = new PermaCommands();
+			for(Method m : Handler.vPermaMethods){
 				try {
 					BotCom bc = m.getAnnotation(BotCom.class);
 					if(bc.type() == ComType.MSG || bc.type() == ComType.BOTH){ //checks that the command is intended for public message
-						m.invoke(basic, fb);
+						m.invoke(perma, fb);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+
 		}
 	}
 }
