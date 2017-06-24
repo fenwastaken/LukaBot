@@ -7,12 +7,12 @@ import java.sql.SQLException;
 
 public class PostgreSQLJDBC {
 
-	public static Connection cnt = null;
-	public static String dbName = "lukabdd";
-	public static String host = "localhost";
-	public static String port = "5432";
-	public static String userName = "postgres";
-	public static String password = "admin";
+	public static Connection cnt = ;
+	public static String dbName = "";
+	public static String host = "";
+	public static String port = "";
+	public static String userName = "";
+	public static String password = "";
 
 	public static Connection getConnection() {
 
