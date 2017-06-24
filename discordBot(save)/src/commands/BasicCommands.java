@@ -70,12 +70,12 @@ public class BasicCommands {
 	}
 
 
-	@BotCom(command = Handler.GE_TAVATAR , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	@BotCom(command = Handler.GET_AVATAR , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void getAvatar(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GE_TAVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_AVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String target = "";
 			String disc = "";
-
+			
 			if(fb.hasFolks()){//
 				Folk folk = fb.getFolkNbX(0);
 				target = folk.getNick();
@@ -88,9 +88,7 @@ public class BasicCommands {
 			}
 
 			try {
-				System.out.println("SEARCHING FOR " + disc + ", " + target);
 				if(CharacterManager.doesCharacterExistFromDiscNick(disc, target)){
-					System.out.println("character exists");
 					String ret = CharacterManager.getAvatar(disc, target);
 					if(ret == null){
 						Tools.sendMessage(target + " has no avatar yet.");

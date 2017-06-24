@@ -20,7 +20,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "0.7c";
+	public static String versionNumber = "0.8";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -40,10 +40,10 @@ public class Handler {
 	final public static String GET_ACC = "acc";
 	final public static String YOUTUBE = "yt";
 	final public static String ROLL = "r";
-	final public static String SETAVATAR = "avaset";
-	final public static String GETAVATAR = "avatar";
-	final public static String SETTHREAD = "threadset";
-	final public static String GETTHREAD = "thread";
+	final public static String SET_AVATAR = "avaset";
+	final public static String GET_AVATAR = "avatar";
+	final public static String SET_THREAD = "threadset";
+	final public static String GET_THREAD = "thread";
 	final public static String GET_CHARACTERS = "character";
 	final public static String LAST_SEEN = "lastseen";
 	final public static String LOCK = "luka"; //must be set manually
