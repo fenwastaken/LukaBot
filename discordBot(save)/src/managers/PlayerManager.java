@@ -11,7 +11,7 @@ public class PlayerManager {
 
 	public static void setPlayer(String discriminator, String name) throws SQLException{
 		String sql = "INSERT INTO player (discriminator, name, date, active, user_rank) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.setString(2, name.toLowerCase());
 		st.setBoolean(3, true);
@@ -21,7 +21,7 @@ public class PlayerManager {
 	
 	public static boolean playerExistsFromID(int id) throws SQLException{
 		String sql = "SELECT name FROM player WHERE id = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setInt(1, id);
 		ResultSet rs = st.executeQuery();
 		boolean ret = false;
@@ -33,7 +33,7 @@ public class PlayerManager {
 	
 	public static boolean playerExistsFromDiscriminator(String discriminator) throws SQLException{
 		String sql = "SELECT id FROM player WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		boolean ret = false;
@@ -45,7 +45,7 @@ public class PlayerManager {
 	
 	public static int getPlayerIdFromDiscriminator(String discriminator) throws SQLException{
 		String sql = "SELECT id FROM player WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		int ret = -2;
@@ -57,7 +57,7 @@ public class PlayerManager {
 	
 	public static String getDiscriminatorFromName(String name) throws SQLException{
 		String sql = "SELECT discriminator FROM player WHERE name = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, name.toLowerCase());
 		ResultSet rs = st.executeQuery();
 		String ret = "";
@@ -70,14 +70,14 @@ public class PlayerManager {
 	
 	public static void updatePlayerDate(String discriminator) throws SQLException{
 		String sql = "UPDATE player SET last_seen = CURRENT_TIMESTAMP WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.executeUpdate();
 	}
 
 	public static void updatePlayerName(String name, String discriminator) throws SQLException{
 		String sql = "UPDATE player SET name = ? WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, name);
 		st.setString(2, discriminator);
 		st.executeUpdate();
@@ -85,7 +85,7 @@ public class PlayerManager {
 	
 	public static void updatePlayerRank(int rank, String discriminator) throws SQLException{
 		String sql = "UPDATE player SET user_rank = ? WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setInt(1, rank);
 		st.setString(2, discriminator);
 		st.executeUpdate();
@@ -93,7 +93,7 @@ public class PlayerManager {
 	
 	public static int getPlayerRank(String discriminator) throws SQLException{
 		String sql = "SELECT user_rank FROM player WHERE discriminator = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		int rank = -2;
@@ -105,7 +105,7 @@ public class PlayerManager {
 	
 	public static String getDate(String name) throws SQLException{
 		String sql = "SELECT name, DATE_TRUNC('seconds', CURRENT_TIMESTAMP - last_seen) AS time FROM player WHERE discriminator = ? ORDER BY time;";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, name);
 		ResultSet rs = st.executeQuery();
 		String ret = "";

@@ -13,7 +13,7 @@ public class CharacterManager {
 	public static void setCharacter(String name, String nick) throws SQLException{
 		int playerId = PlayerManager.getPlayerIdFromDiscriminator(name);
 		String sql = "INSERT INTO character (player_id, character_name) VALUES (?, ?)";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setInt(1, playerId);
 		st.setString(2, nick.toLowerCase());
 		st.executeUpdate();
@@ -21,7 +21,7 @@ public class CharacterManager {
 
 	public static boolean doesCharacterExistFromNick(String nick) throws SQLException{
 		String sql = "SELECT id FROM character WHERE character_name = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, nick.toLowerCase());
 		ResultSet rs = st.executeQuery();
 		boolean ret = false;
@@ -34,7 +34,7 @@ public class CharacterManager {
 	public static boolean doesCharacterExistFromDiscNick(String discriminator, String nick) throws SQLException{
 		int player_id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "SELECT id FROM character WHERE character_name = ? AND player_id = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, nick.toLowerCase());
 		st.setInt(2, player_id);
 		ResultSet rs = st.executeQuery();
@@ -48,7 +48,7 @@ public class CharacterManager {
 	public static void setAvatar(String discriminator, String character_name, String avatar) throws SQLException{
 		int player_id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "UPDATE character SET avatar = ? WHERE player_id = ? AND character_name = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, avatar);
 		st.setInt(2, player_id);
 		st.setString(3, character_name.toLowerCase());
@@ -58,7 +58,7 @@ public class CharacterManager {
 	public static String getAvatar(String discriminator, String nick) throws SQLException{
 		int id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
 		String sql = "SELECT avatar FROM character WHERE character_name = ? AND player_id = ?";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, nick.toLowerCase());
 		st.setInt(2, id);
 		ResultSet rs = st.executeQuery();
@@ -71,7 +71,7 @@ public class CharacterManager {
 
 	public static int getCharacterNbFromDiscriminator(String discriminator) throws SQLException{
 		String sql = "SELECT id FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		int nb = 0;
@@ -85,7 +85,7 @@ public class CharacterManager {
 	
 	public static Vector<String> getCharacterNamesFromDiscriminator(String discriminator) throws SQLException{
 		String sql = "SELECT character_name FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		Vector<String>ret = new Vector<>();
@@ -97,7 +97,7 @@ public class CharacterManager {
 	}
 	public static boolean hasAvatar(String discriminator) throws SQLException{
 		String sql = "SELECT avatar FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
-		PreparedStatement st = PostgreSQLJDBC.getConnexion().prepareStatement(sql);
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		ResultSet rs = st.executeQuery();
 		boolean ret = false;

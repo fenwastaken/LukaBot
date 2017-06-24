@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -54,7 +55,7 @@ public class GUI extends JFrame{
 		zoneClient.setLayout(new BoxLayout(zoneClient, BoxLayout.Y_AXIS));
 		lab.setAlignmentX(CENTER_ALIGNMENT);
 		bt.setAlignmentX(CENTER_ALIGNMENT);
-		
+		bt.setFocusable(false);
 		lab.setBorder(BorderFactory.createBevelBorder(0));
 		
 		zoneClient.add(Box.createVerticalGlue());

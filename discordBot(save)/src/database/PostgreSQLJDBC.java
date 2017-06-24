@@ -7,19 +7,19 @@ import java.sql.SQLException;
 
 public class PostgreSQLJDBC {
 
-	public static Connection cnx = null;
+	public static Connection cnt = null;
 	public static String dbName = "";
 	public static String host = "";
 	public static String port = "";
 	public static String userName = "";
 	public static String password = "";
 
-	public static Connection getConnexion() {
+	public static Connection getConnection() {
 
-		if(cnx == null){
+		if(cnt == null){
 			try {
 				Class.forName("org.postgresql.Driver");
-				cnx = DriverManager
+				cnt = DriverManager
 						.getConnection("jdbc:postgresql://" + host + ":" + port + "/" + dbName,
 								userName , password);
 			} catch (Exception e) {
@@ -30,14 +30,14 @@ public class PostgreSQLJDBC {
 			System.out.println("Opened database successfully");
 		}
 
-		return cnx;
+		return cnt;
 	}
 
 
 	public static void closeConnection(){
-		if(cnx != null){
+		if(cnt != null){
 			try {
-				cnx.close();
+				cnt.close();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

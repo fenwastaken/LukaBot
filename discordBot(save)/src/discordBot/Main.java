@@ -20,7 +20,7 @@ public class Main {
 		
 		try{
 			
-			PostgreSQLJDBC.getConnexion();
+			PostgreSQLJDBC.getConnection();
 			
 			Handler h = new Handler();
 			
