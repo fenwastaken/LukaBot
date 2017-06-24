@@ -20,11 +20,11 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "0.6";
+	public static String versionNumber = "0.7b";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
-	public static String admin = "Spot-On";
+	public static String admin = "Spot-On"; //must be set manually, used only for reference
 	public static String key = "!";
 	public static boolean locked = false;
 	public static Vector<Method> vBasicMethods;
@@ -48,6 +48,6 @@ public class Handler {
 	final public static String GETTHREAD = "thread";
 	final public static String GET_CHARACTERS = "character";
 	final public static String LAST_SEEN = "lastseen";
-	final public static String LOCK = "luka";
+	final public static String LOCK = "luka"; //must be set manually
 	
 }

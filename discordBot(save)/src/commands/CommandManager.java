@@ -39,7 +39,7 @@ public class CommandManager extends ListenerAdapter{
 				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
 
 
-		if(!fb.getAuthor().getDiscriminator().equals(Details.botDicriminator)){
+		if(!fb.getAuthor().getDiscriminator().equals(Details.DISCRIMINATOR)){
 			PassiveCommands pc = new PassiveCommands(fb.getAuthor().getDiscriminator(), fb.getAuthor().getName(), fb.getAuthorNick());
 
 			//basic

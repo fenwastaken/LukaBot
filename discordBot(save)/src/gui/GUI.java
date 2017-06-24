@@ -32,9 +32,9 @@ import net.dv8tion.jda.core.JDA;
 
 public class GUI extends JFrame{
 
-	JDA jda = null;
-	JButton bt = new JButton("Close");
-	JLabel lab = new JLabel();
+	public JDA jda = null;
+	public JButton bt = new JButton("Close");
+	public JLabel lab = new JLabel();
 	
 	public GUI(JDA jda){
 
@@ -44,7 +44,6 @@ public class GUI extends JFrame{
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);
 		this.setResizable(false);
-		
 		
 		initControles();
 	}
