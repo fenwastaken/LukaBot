@@ -43,7 +43,7 @@ public class BasicCommands {
 
 	@BotCom(command = Handler.GET_CHARACTERS , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void getCharacters(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_CHARACTERS, Comparison.CONTAINS, ComLvl.PLAYER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_CHARACTERS, Comparison.STARTS_EQUALS, ComLvl.PLAYER)){
 			String discriminator;
 			String name = "";
 			if(fb.hasFolks()){
@@ -70,9 +70,9 @@ public class BasicCommands {
 	}
 
 
-	@BotCom(command = Handler.GETAVATAR , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	@BotCom(command = Handler.GE_TAVATAR , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void getAvatar(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GETAVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GE_TAVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String target = "";
 			String disc = "";
 
@@ -115,9 +115,9 @@ public class BasicCommands {
 		}
 	}
 
-	@BotCom(command = Handler.SETAVATAR , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
+	@BotCom(command = Handler.SET_AVATAR , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void setAvatar(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SETAVATAR, Comparison.STARTS_WITH, ComLvl.USER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_AVATAR, Comparison.STARTS_WITH, ComLvl.USER)){
 			String avatar = Tools.lastParameter(fb.getMessage(), 0);
 			Folk author = fb.getAuthor();
 
@@ -178,7 +178,7 @@ public class BasicCommands {
 
 	@BotCom(command = Handler.GET_ACC, lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void getAcc(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_ACC, Comparison.CONTAINS, ComLvl.USER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_ACC, Comparison.STARTS_EQUALS, ComLvl.USER)){
 			String disc;
 			String name;
 			if(fb.hasFolks()){
@@ -313,9 +313,9 @@ public class BasicCommands {
 		}		
 	}
 
-	@BotCom(command = Handler.GETTHREAD , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
+	@BotCom(command = Handler.GET_THREAD , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void getThread(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GETTHREAD, Comparison.EQUALS, ComLvl.USER)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_THREAD, Comparison.EQUALS, ComLvl.USER)){
 			int total = Tools.countThread();
 			try {
 				String thread = ThreadManager.getThread(total);
@@ -327,9 +327,9 @@ public class BasicCommands {
 		}
 	}
 
-	@BotCom(command = Handler.SETTHREAD , lvl = ComLvl.TRUSTED, type = ComType.MSG, category = ComCategory.TRUSTED)
+	@BotCom(command = Handler.SET_THREAD , lvl = ComLvl.TRUSTED, type = ComType.MSG, category = ComCategory.TRUSTED)
 	public void setThread(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SETTHREAD, Comparison.STARTS_WITH, ComLvl.TRUSTED)){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_THREAD, Comparison.STARTS_WITH, ComLvl.TRUSTED)){
 			String link = Tools.cutter(fb.getMessage(), " ").elementAt(0);
 			try {
 				ThreadManager.setThread(link);

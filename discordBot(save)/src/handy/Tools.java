@@ -213,6 +213,11 @@ public class Tools {
 				ret = true;
 			}
 			break;
+		case STARTS_EQUALS:
+			if(message.toLowerCase().startsWith(skey(command).toLowerCase() + " ") || message.toLowerCase().equals(skey(command).toLowerCase())){
+				ret = true;
+			}
+			break;
 		default:
 			ret = false;
 		}
