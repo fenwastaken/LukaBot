@@ -20,7 +20,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "0.9";
+	public static String versionNumber = "1.0";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -51,5 +51,7 @@ public class Handler {
 	final public static String RANK = "rankset";
 	final public static String GET_LINK = "link";
 	final public static String SET_LINK = "linkset";
+	final public static String STATS = "stats";
+	final public static String DEACTIVATE = "deactivate";
 	
 }

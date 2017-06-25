@@ -15,6 +15,7 @@ import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
 import dice.DiceType;
+import gnu.trove.impl.HashFunctions;
 import handy.Handler;
 import handy.Tools;
 import managers.CharacterManager;
@@ -26,6 +27,44 @@ import objects.FolkBox;
 
 public class BasicCommands {
 
+	@BotCom(command = Handler.DEACTIVATE , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void deactivate(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.DEACTIVATE, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+				if(!fb.getArguments().isEmpty()){
+					String nick = fb.getArguments().firstElement();
+					try {
+						if(CharacterManager.doesCharacterExistFromDiscNick(fb.getAuthorDiscriminator(), nick)){
+							CharacterManager.deactivateCharacter(fb.getAuthorDiscriminator(), nick, false);
+							Tools.sendMessage(nick + " was deactivated.");
+						}
+						else{
+							Tools.sendMessage("You have no character named " + nick + ".");
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+		}
+	}
+	
+	@BotCom(command = Handler.STATS , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void getStats(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.STATS, Comparison.EQUALS, ComLvl.PLAYER)){
+			try {
+				int playerNb = PlayerManager.getPlayerNb();
+				int legitPlayer = PlayerManager.getLegitPlayerNb();
+				int charaNb = CharacterManager.getCharacterNb();
+				int avaNb = CharacterManager.getCharacterWAvatarNb();
+				Tools.sendMessage("So, we have a total of " + playerNb + " players and " + charaNb + " characters." 
+				+ avaNb + " of these characters are legit, they are owned by " + legitPlayer + " different players.");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@BotCom(command = Handler.SET_LINK , lvl = ComLvl.TRUSTED, type = ComType.MSG, category = ComCategory.TRUSTED)
 	public void setLink(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_LINK, Comparison.STARTS_WITH, ComLvl.TRUSTED)){
@@ -120,7 +159,7 @@ public class BasicCommands {
 					String ret = nick + "'s avatar was removed.";
 					if (rank != 5){
 						PlayerManager.updatePlayerRank(4, discriminator);
-						ret = ret.substring(0, ret.length() - 1) + "and their rank is downgraded to user. sorry :)";
+						ret = ret.substring(0, ret.length() - 1) + " and their rank is downgraded to user. sorry :)";
 					}
 					Tools.sendMessage(ret);
 				} catch (SQLException e) {

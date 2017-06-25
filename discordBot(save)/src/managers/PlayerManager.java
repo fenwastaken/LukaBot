@@ -8,7 +8,31 @@ import java.util.Date;
 import database.PostgreSQLJDBC;
 
 public class PlayerManager {
+	
+	
 
+	public static int getPlayerNb() throws SQLException{
+		String sql = "SELECT id FROM player";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		ResultSet rs = st.executeQuery();
+		int ret = 0;
+		while(rs.next()){
+			ret++;
+		}
+		return ret;
+	}
+	
+	public static int getLegitPlayerNb() throws SQLException{
+		String sql = "SELECT DISTINCT player.id FROM player join character on player.id = player_id WHERE character.avatar IS NOT NULL ORDER by id;";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		ResultSet rs = st.executeQuery();
+		int ret = 0;
+		while(rs.next()){
+			ret++;
+		}
+		return ret;
+	}
+	
 	public static void setPlayer(String discriminator, String name) throws SQLException{
 		String sql = "INSERT INTO player (discriminator, name, date, active, user_rank) VALUES (?, ?, CURRENT_TIMESTAMP, ?, ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
