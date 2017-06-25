@@ -227,6 +227,7 @@ public class Tools {
 
 			if(senderLvl.getValue() > minLvl.getValue()){
 				ret = false;
+				sendMessage("Your rank is insufficient for that command.");
 			}
 		}
 

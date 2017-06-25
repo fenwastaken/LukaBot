@@ -7,6 +7,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.Vector;
 
+import javax.tools.Tool;
+
 import annotations.BotCom;
 import annotations.ComCategory;
 import annotations.ComLvl;
@@ -18,11 +20,116 @@ import handy.Tools;
 import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
+import managers.UrlsManager;
 import objects.Folk;
 import objects.FolkBox;
 
 public class BasicCommands {
 
+	@BotCom(command = Handler.SET_LINK , lvl = ComLvl.TRUSTED, type = ComType.MSG, category = ComCategory.TRUSTED)
+	public void setLink(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_LINK, Comparison.STARTS_WITH, ComLvl.TRUSTED)){
+			System.out.println("here yeah");
+			if(fb.getArguments().size() == 2){
+				String name = fb.getArguments().elementAt(0);
+				String link = fb.getArguments().elementAt(1);
+				System.out.println("name " + name + " link " + link);
+				try{
+					if(!UrlsManager.exists(name)){
+						System.out.println("looks good");
+						UrlsManager.setLink(name, link);
+						Tools.sendMessage("Alrighty, I added the link for " + name);
+					}
+					else{
+						//update
+						UrlsManager.updateLink(link, name);
+						Tools.sendMessage("I updated " + name + "'s link, " + fb.getAuthorNick() + ".");
+					}
+				}
+				catch(SQLException e){
+					Tools.sendMessage("Something went wrong...");
+					e.printStackTrace();
+				}
+			}
+			else{
+				Tools.sendMessage("Wait wait wait... I need a name and a link, nothing more, nothing less, " + fb.getAuthorNick());
+			}
+		}
+	}
+
+	@BotCom(command = Handler.GET_LINK , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
+	public void getLink(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_LINK, Comparison.STARTS_EQUALS, ComLvl.USER)){
+			try {
+				if(!fb.getArguments().elementAt(0).equals(Handler.key + Handler.GET_LINK)){
+					String name = fb.getArguments().elementAt(0);
+
+					String link = UrlsManager.getLinkFromName(name);
+					if(link != null && link.length() > 0){
+						Tools.sendMessage("Here it is, " + fb.getAuthorNick() + ": " + link);
+					}
+					else{
+						Tools.sendMessage("Hmmmm... Nope, I don't have that one.");
+					}
+
+				}
+				else{
+					String ret = UrlsManager.getAllNames();
+					if(ret.length() > 0){
+						Tools.sendMessage("Here's what i got: " + ret);
+					}
+					else{
+						Tools.sendMessage("I got no link saved yet.");
+					}
+
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	@BotCom(command = Handler.RANK , lvl = ComLvl.ADMIN, type = ComType.MSG, category = ComCategory.ADMINS)
+	public void setRank(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.RANK, Comparison.STARTS_WITH, ComLvl.ADMIN)){
+			if(fb.hasFolks()){
+				Folk f = fb.getFolkNbX(0);
+				try{
+					int rank = Integer.parseInt(fb.getArguments().elementAt(0));
+					PlayerManager.updatePlayerRank(rank, f.getDiscriminator());
+					Tools.sendMessage(f.getNick() + "'s rank was set to " + ComLvl.USER.getString(rank) + ".");
+				}
+				catch(NumberFormatException |SQLException e){
+					Tools.sendMessage(fb.getArguments().elementAt(0) + " is no valid rank.");
+				}
+			}
+		}
+	}
+
+	@BotCom(command = Handler.REMOVE_AVATAR , lvl = ComLvl.ADMIN, type = ComType.MSG, category = ComCategory.ADMINS)
+	public void remAvatar(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REMOVE_AVATAR, Comparison.STARTS_WITH, ComLvl.ADMIN)){
+			if(fb.hasFolks()){
+				try {
+					String discriminator = fb.getFolkNbX(0).getDiscriminator();
+					String nick = fb.getFolkNbX(0).getNick();
+					CharacterManager.setAvatar(discriminator, nick, null);
+					int rank = PlayerManager.getPlayerRank(discriminator);
+					String ret = nick + "'s avatar was removed.";
+					if (rank != 5){
+						PlayerManager.updatePlayerRank(4, discriminator);
+						ret = ret.substring(0, ret.length() - 1) + "and their rank is downgraded to user. sorry :)";
+					}
+					Tools.sendMessage(ret);
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
 	@BotCom(command = Handler.LAST_SEEN , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void lastSeen(FolkBox fb){
@@ -75,7 +182,7 @@ public class BasicCommands {
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_AVATAR, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String target = "";
 			String disc = "";
-			
+
 			if(fb.hasFolks()){//
 				Folk folk = fb.getFolkNbX(0);
 				target = folk.getNick();
