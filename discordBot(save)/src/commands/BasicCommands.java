@@ -22,16 +22,66 @@ import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
 import managers.UrlsManager;
+import managers.inventoryManager;
 import objects.Folk;
 import objects.FolkBox;
 
 public class BasicCommands {
 
+	@BotCom(command = Handler.GET_INVENTORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void getInventory(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_INVENTORY, Comparison.STARTS_EQUALS, ComLvl.PLAYER)){
+			Folk target = null;
+			if(fb.hasFolks()){
+				target = fb.getFolkNbX(0);
+			}
+			else{
+				target = fb.getAuthor();
+			}
+			try {
+				String ret = inventoryManager.getInventory(target.getDiscriminator());
+				if(ret.length() == 2){
+					Tools.sendMessage(target.getNick() + "'s inventory is empty.");
+				}
+				else{
+					Tools.sendMessage(target.getNick() + "'s inventory: " + ret + ".");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@BotCom(command = Handler.ADD_ITEM , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
+	public void giveItem(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ADD_ITEM, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
+			Folk target = null;
+			if(fb.hasFolks()){
+				try{
+					target = fb.getFolkNbX(0);
+					int qt = Integer.parseInt(fb.getArguments().firstElement());
+					String item = fb.getArguments().elementAt(1);
+					inventoryManager.addItem(target.getDiscriminator(), item, qt);
+					Tools.sendMessage(target.getNick() + " recieved " + qt + " " + item + ".");
+				}
+				catch(NumberFormatException | SQLException e){
+					Tools.sendMessage("That huh... was a weird number..");
+					e.printStackTrace();
+				}
+			}
+			else{
+				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
+			}
+
+		}
+	}
+	
 	@BotCom(command = Handler.DEACTIVATE , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void deactivate(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.DEACTIVATE, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 				if(!fb.getArguments().isEmpty()){
-					String nick = fb.getArguments().firstElement();
+					String nick = Tools.reBuilder(-1, fb.getArguments(), " ");
 					try {
 						if(CharacterManager.doesCharacterExistFromDiscNick(fb.getAuthorDiscriminator(), nick)){
 							CharacterManager.deactivateCharacter(fb.getAuthorDiscriminator(), nick, false);
