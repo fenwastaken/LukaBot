@@ -42,7 +42,7 @@ public class PassiveCommands {
 
 			if(!Handler.vCharacter.contains("nick")){
 				try {
-					if(!(CharacterManager.doesCharacterExistFromDiscNick(discriminator, nick))){
+					if(!(CharacterManager.doesCharacterExistFromNick(nick))){
 						if(CharacterManager.getCharacterNbFromDiscriminator(discriminator) < 3){
 							CharacterManager.setCharacter(discriminator, nick);
 							System.out.println("character added for " + discriminator + ": " + nick + ".");

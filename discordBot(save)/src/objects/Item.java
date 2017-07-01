@@ -29,7 +29,7 @@ public class Item {
 	
 	public String toString(){
 		String ret = this.name;
-		if(this.quantity > 0){
+		if(this.quantity > 1){
 			ret += " * " + this.quantity;
 		}
 		return ret;

@@ -56,6 +56,17 @@ public class CommandManager extends ListenerAdapter{
 					}
 				}
 				//other commands go there
+				CharacterCommands character = new CharacterCommands();
+				for(Method m : Handler.vCharacterMethods){
+					try {
+						BotCom bc = m.getAnnotation(BotCom.class);
+						if(bc.type() == ComType.MSG || bc.type() == ComType.BOTH){ //checks that the command is intended for public message
+							m.invoke(character, fb);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			//perma
 			PermaCommands perma = new PermaCommands();

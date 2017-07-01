@@ -11,6 +11,7 @@ import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
 import commands.BasicCommands;
+import commands.CharacterCommands;
 import commands.PermaCommands;
 import managers.CharacterManager;
 import managers.PlayerManager;
@@ -43,9 +44,11 @@ public class Tools {
 	public static void setMethodVector(){
 		Handler.vBasicMethods = new Vector<Method>();
 		Handler.vPermaMethods = new Vector<Method>();
+		Handler.vCharacterMethods = new Vector<>();
 		
 		Method[] basicMethods = BasicCommands.class.getMethods();
 		Method[] permaMethods = PermaCommands.class.getMethods();
+		Method[] characterMethods = CharacterCommands.class.getMethods();
 		
 		for (Method m : basicMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
@@ -58,6 +61,12 @@ public class Tools {
 				Handler.vPermaMethods.add(m);
 			}
 		}
+		
+		for (Method m : characterMethods){
+			if (m.isAnnotationPresent(BotCom.class)){
+				Handler.vCharacterMethods.add(m);
+			}
+		}
 	}
 
 	public static String helpMaker(){
@@ -67,14 +76,16 @@ public class Tools {
 		Vector<String> vTrusted = new Vector<String>();
 		Vector<String> vAdministration = new Vector<String>();
 
-		Method[] methods1 = BasicCommands.class.getMethods();
-		Method[] methods2 = PermaCommands.class.getMethods();
+		Method[] methodsBasic = BasicCommands.class.getMethods();
+		Method[] methodsPerma = PermaCommands.class.getMethods();
+		Method[] methodsCharacter = CharacterCommands.class.getMethods();
 
 		Vector<Method[]> vecMethods = new Vector<>();
 		Vector<Method> vecMethodsAll = new Vector<>();
 		
-		vecMethods.add(methods1);
-		vecMethods.add(methods2);
+		vecMethods.add(methodsBasic);
+		vecMethods.add(methodsPerma);
+		vecMethods.add(methodsCharacter);
 		
 		for(Method[] meth : vecMethods){
 			for(Method m : meth){
@@ -127,51 +138,54 @@ public class Tools {
 		Collections.sort(vAdministration);
 
 
-		String ret = "";
+		String ret = "```";
 
 		if(vUsers.size() > 0){
-			ret += "Users: ";
+			ret += "-Users:\n ";
 
 			for(String str : vUsers){
-				ret += str + ", ";
+				ret += "  " +  str + "\n ";
 			}
 		}
 
 		if(vPlayers.size() > 0){
-			ret += "Players: ";
+			ret = ret.substring(0, ret.length() - 1);
+			ret += "\n-Players:\n ";
 
 			for(String str : vPlayers){
-				ret += str + ", ";
+				ret += "  " +   str + "\n ";
 			}
 		}
 
 		if(vGameMasters.size() > 0){
-			ret += "Game Masters: ";
+			ret = ret.substring(0, ret.length() - 1);
+			ret += "\n-Game Masters:\n ";
 
 			for(String str : vGameMasters){
-				ret += str + ", ";
+				ret += "  " +   str + "\n ";
 			}
 		}
 
 		if(vTrusted.size() > 0){
-			ret += "Trusted: ";
+			ret = ret.substring(0, ret.length() - 1);
+			ret += "\n-Trusted:\n ";
 
 			for(String str : vTrusted){
-				ret += str + ", ";
+				ret += "  " +   str + "\n ";
 			}
 		}
 
 		if(vAdministration.size() > 0){
-			ret += "Admin: ";
+			ret = ret.substring(0, ret.length() - 1);
+			ret += "\n-Admin:\n ";
 
 			for(String str : vAdministration){
-				ret += str + ", ";
+				ret += "  " + str + "\n ";
 			}
 		}
 
 		ret = ret.substring(0, ret.length() - 2);
-		ret += ".";
-
+		ret = ret + "```";
 		return (vUsers.size() + vPlayers.size() + vGameMasters.size() + vTrusted.size() + vAdministration.size()) + " commands: " + ret;
 
 	}

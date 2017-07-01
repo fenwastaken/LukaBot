@@ -20,15 +20,18 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.1";
+	public static String versionNumber = "1.3";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
 	public static String admin = "Spot-On"; //must be set manually, used only for reference
 	public static String key = "!";
 	public static boolean locked = false;
+	
 	public static Vector<Method> vBasicMethods;
 	public static Vector<Method> vPermaMethods;
+	public static Vector<Method> vCharacterMethods;
+	
 	public static Vector<String> vPlayer = new Vector<>();
 	public static Vector<String> vCharacter = new Vector<>();
 
@@ -54,6 +57,10 @@ public class Handler {
 	final public static String STATS = "stats";
 	final public static String DEACTIVATE = "deactivate";
 	final public static String ADD_ITEM = "give";
+	final public static String REM_ITEM = "take";
+	final public static String CLEAR_INVENTORY = "clear";
 	final public static String GET_INVENTORY = "inv";
+	final public static String GET_AVATARLESS = "avatarless";
+	final public static String GET_AVATARFULL = "avatarfull";
 	
 }

@@ -9,7 +9,34 @@ import database.PostgreSQLJDBC;
 import objects.Item;
 
 public class inventoryManager {
+	
+	public static String remItem(String discriminator, String item, int quantity) throws SQLException{
+		String ret = "not found";
+		int id = getObjectIdFromInventory(discriminator, item);
+		if(id > 0){
+			Item it = getObjectFromInventory(discriminator, item);
+			quantity = it.getQuantity() - quantity;
+			if(quantity <= 0){
+				delItem(item, discriminator);
+				ret = "deleted";
+			}
+			else{
+				updateObjectNb(quantity, id);
+				ret = "substracted";
+			}
+			
+		}
+		return ret;
+	}
 
+	public static void delItem(String name, String discriminator) throws SQLException{
+		String sql = "DELETE FROM inventory WHERE name = ? AND discriminator = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, name);
+		st.setString(2, discriminator);
+		st.executeUpdate();
+	}
+	
 	public static void addItem(String discriminator, String item, int quantity) throws SQLException{
 		int id = getObjectIdFromInventory(discriminator, item);
 		if(id > 0){
@@ -26,6 +53,18 @@ public class inventoryManager {
 			st.executeUpdate();
 		}
 
+	}
+	
+	public static boolean clearItems(String discriminator) throws SQLException{
+		boolean worked = false;
+			String sql = "DELETE FROM inventory WHERE discriminator = ?";
+			PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+			st.setString(1, discriminator);
+			int op = st.executeUpdate();
+			if(op != 0){
+				worked = true;
+			}
+		return worked;
 	}
 	
 	public static String getInventory(String discriminator) throws SQLException{
