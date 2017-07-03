@@ -161,6 +161,21 @@ public class CharacterManager {
 		System.out.println("RET SIZE " + ret.size());
 		return ret;
 	}
+	
+	public static int getCharacterIdFromDiscNick(String discriminator, String charname) throws SQLException{
+		String sql = "SELECT id FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?) AND character.active = ? AND character_name = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, discriminator);
+		st.setBoolean(2, true);
+		st.setString(3, charname.toLowerCase());
+		ResultSet rs = st.executeQuery();
+		int ret = -2;
+		while(rs.next()){
+			ret = rs.getInt("id");
+		}
+		return ret;
+	}
+	
 	public static boolean hasAvatar(String discriminator) throws SQLException{
 		String sql = "SELECT avatar FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);

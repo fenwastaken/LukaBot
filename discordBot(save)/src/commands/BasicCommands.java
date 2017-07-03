@@ -22,7 +22,7 @@ import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
 import managers.UrlsManager;
-import managers.inventoryManager;
+import managers.InventoryManager;
 import objects.Folk;
 import objects.FolkBox;
 

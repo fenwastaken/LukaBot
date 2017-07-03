@@ -20,7 +20,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.3";
+	public static String versionNumber = "1.4";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -55,12 +55,16 @@ public class Handler {
 	final public static String GET_LINK = "link";
 	final public static String SET_LINK = "linkset";
 	final public static String STATS = "stats";
-	final public static String DEACTIVATE = "deactivate";
-	final public static String ADD_ITEM = "give";
+	final public static String DEACTIVATE = "deactivate";	
+	final public static String GIVE_ITEM = "give";
+	final public static String ADD_ITEM = "grant";
 	final public static String REM_ITEM = "take";
 	final public static String CLEAR_INVENTORY = "clear";
 	final public static String GET_INVENTORY = "inv";
 	final public static String GET_AVATARLESS = "avatarless";
 	final public static String GET_AVATARFULL = "avatarfull";
+	final public static String GET_POUCH = "pouch";
+	final public static String GIVE_MONEY = "pay";
+	
 	
 }

@@ -8,7 +8,7 @@ import java.util.Vector;
 import database.PostgreSQLJDBC;
 import objects.Item;
 
-public class inventoryManager {
+public class InventoryManager {
 	
 	public static String remItem(String discriminator, String item, int quantity) throws SQLException{
 		String ret = "not found";
@@ -28,7 +28,7 @@ public class inventoryManager {
 		}
 		return ret;
 	}
-
+	
 	public static void delItem(String name, String discriminator) throws SQLException{
 		String sql = "DELETE FROM inventory WHERE name = ? AND discriminator = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
