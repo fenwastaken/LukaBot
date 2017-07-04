@@ -20,7 +20,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.4";
+	public static String versionNumber = "1.5";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -65,6 +65,7 @@ public class Handler {
 	final public static String GET_AVATARFULL = "avatarfull";
 	final public static String GET_POUCH = "pouch";
 	final public static String GIVE_MONEY = "pay";
+	final public static String ALTER_MONEY = "money";
 	
 	
 }

@@ -20,6 +20,53 @@ import objects.Item;
 
 public class CharacterCommands {
 
+	@BotCom(command = Handler.ALTER_MONEY , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
+	public void changeMoney(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ALTER_MONEY, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
+			if(fb.hasFolks()){
+				try{
+					Folk target = fb.getFolkNbX(0);
+					int amount = Integer.parseInt(fb.getArguments().elementAt(0));
+					int multiplier = 0;
+					String currency = fb.getArguments().elementAt(1);
+					if(currency.equals("gold") || currency.equals("silver") || currency.equals("copper")){
+						switch(currency){
+						case "gold":
+							multiplier = 100;
+							break;
+
+						case "silver":
+							multiplier = 10;
+							break;
+
+						case "copper":
+							multiplier = 1;
+							break;
+						}
+						amount = amount * multiplier;
+							PouchManager.CreatePouchIfCharacterExists(target.getDiscriminator(), target.getNick());
+							if(PouchManager.pouchExists(target.getDiscriminator(), target.getNick())){
+								PouchManager.changeAmount(target.getDiscriminator(), target.getNick(), amount, "add");
+								Tools.sendMessage(pouchToString(target));
+							}
+							else{
+								Tools.sendMessage(target.getNick() + " has no pouch and can't be given one.");
+							}
+					}
+					else{
+						Tools.sendMessage("What are those coins...?");
+					}
+				}
+				catch(NumberFormatException e){
+					Tools.sendMessage("That amount doesn't feel right...");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
 	@BotCom(command = Handler.GIVE_MONEY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void pay(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GIVE_MONEY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
@@ -52,7 +99,8 @@ public class CharacterCommands {
 							if(PouchManager.pouchExists(target.getDiscriminator(), target.getNick())){
 								PouchManager.changeAmount(fb.getAuthorDiscriminator(), fb.getAuthorNick(), amount, "sub");
 								PouchManager.changeAmount(target.getDiscriminator(), target.getNick(), amount, "add");
-								Tools.sendMessage("transaction done!");
+								Tools.sendMessage(pouchToString(fb.getAuthor()));
+								Tools.sendMessage(pouchToString(target));
 							}
 							else{
 								Tools.sendMessage(target.getNick() + " has no pouch and can't be given one.");
@@ -92,31 +140,8 @@ public class CharacterCommands {
 				if(created){
 					Tools.sendMessage(target.getNick() + " was granted a brand new magic pouch!");
 				}
-				int amount = PouchManager.getPouchContent(target.getDiscriminator(), target.getNick());
-				int gold = amount/100;
-				amount = amount%100;
-				int silver = amount/10;
-				int copper = amount%10;
 
-				String ret = target.getNick() + " has ";
-				boolean munnies = false;
-				if(gold > 0){
-					ret += gold + " Gold coins, ";
-					munnies = true;
-				}
-				if(silver > 0){
-					ret += silver + " Silver coins, ";
-					munnies = true;
-				}
-				if(copper > 0){
-					ret += copper + " Copper coins.";
-					munnies = true;
-				}
-
-				if(!munnies){
-					ret = target.getNick() + " 's pouch is empty. :c";
-				}
-
+				String ret = pouchToString(target);
 				Tools.sendMessage(ret);
 
 			} catch (SQLException e) {
@@ -487,6 +512,43 @@ public class CharacterCommands {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public String pouchToString(Folk target){
+		String ret = "oopsies";
+		try {
+			int amount;
+			amount = PouchManager.getPouchContent(target.getDiscriminator(), target.getNick());
+			int gold = amount/100;
+			amount = amount%100;
+			int silver = amount/10;
+			int copper = amount%10;
+
+			ret = target.getNick() + " has ";
+			boolean munnies = false;
+			if(gold > 0){
+				ret += gold + " Gold coin(s), ";
+				munnies = true;
+			}
+			if(silver > 0){
+				ret += silver + " Silver coin(s), ";
+				munnies = true;
+			}
+			if(copper > 0){
+				ret += copper + " Copper coin(s).";
+				munnies = true;
+			}
+
+			if(!munnies){
+				ret = target.getNick() + " 's pouch is empty. :c";
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return ret;
+		
 	}
 
 }

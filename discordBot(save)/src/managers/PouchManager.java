@@ -73,6 +73,11 @@ public class PouchManager {
 				amount = current - amount;
 				break;
 			}
+			
+			if(amount < 0){
+				amount = 0;
+			}
+			
 			String sql = "UPDATE pouch SET amount = ? WHERE character_id = ?";
 			PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 			st.setInt(1, amount);
