@@ -1,0 +1,479 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.5.2
+-- Dumped by pg_dump version 9.5.2
+
+-- Started on 2017-07-04 22:17:01
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 2164 (class 1262 OID 16994)
+-- Name: lukabdd; Type: DATABASE; Schema: -; Owner: postgres
+--
+
+CREATE DATABASE lukabdd WITH TEMPLATE = template0 ENCODING = 'UTF8' LC_COLLATE = 'French_France.1252' LC_CTYPE = 'French_France.1252';
+
+
+ALTER DATABASE lukabdd OWNER TO postgres;
+
+\connect lukabdd
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- TOC entry 1 (class 3079 OID 12355)
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- TOC entry 2167 (class 0 OID 0)
+-- Dependencies: 1
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- TOC entry 183 (class 1259 OID 17015)
+-- Name: character; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE "character" (
+    id integer NOT NULL,
+    player_id integer,
+    character_name character varying,
+    avatar character varying,
+    active boolean
+);
+
+
+ALTER TABLE "character" OWNER TO postgres;
+
+--
+-- TOC entry 184 (class 1259 OID 17018)
+-- Name: character_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE character_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE character_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2168 (class 0 OID 0)
+-- Dependencies: 184
+-- Name: character_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE character_id_seq OWNED BY "character".id;
+
+
+--
+-- TOC entry 191 (class 1259 OID 17089)
+-- Name: id; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE id (
+    id integer NOT NULL,
+    discriminator character varying,
+    item character varying,
+    quantity integer
+);
+
+
+ALTER TABLE id OWNER TO postgres;
+
+--
+-- TOC entry 190 (class 1259 OID 17087)
+-- Name: id_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE id_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE id_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2169 (class 0 OID 0)
+-- Dependencies: 190
+-- Name: id_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE id_id_seq OWNED BY id.id;
+
+
+--
+-- TOC entry 189 (class 1259 OID 17084)
+-- Name: inventory; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE inventory (
+    id integer NOT NULL,
+    name character varying,
+    quantity integer,
+    discriminator character varying
+);
+
+
+ALTER TABLE inventory OWNER TO postgres;
+
+--
+-- TOC entry 192 (class 1259 OID 17098)
+-- Name: inventory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE inventory_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE inventory_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2170 (class 0 OID 0)
+-- Dependencies: 192
+-- Name: inventory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE inventory_id_seq OWNED BY inventory.id;
+
+
+--
+-- TOC entry 181 (class 1259 OID 16997)
+-- Name: player; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE player (
+    discriminator character varying,
+    id integer NOT NULL,
+    name character varying,
+    active boolean,
+    date timestamp without time zone,
+    user_rank integer,
+    last_seen timestamp without time zone
+);
+
+
+ALTER TABLE player OWNER TO postgres;
+
+--
+-- TOC entry 182 (class 1259 OID 17004)
+-- Name: player_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE player_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE player_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2171 (class 0 OID 0)
+-- Dependencies: 182
+-- Name: player_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE player_id_seq OWNED BY player.id;
+
+
+--
+-- TOC entry 193 (class 1259 OID 17109)
+-- Name: pouch; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE pouch (
+    id integer NOT NULL,
+    amount integer,
+    character_id integer
+);
+
+
+ALTER TABLE pouch OWNER TO postgres;
+
+--
+-- TOC entry 194 (class 1259 OID 17112)
+-- Name: pouch_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE pouch_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE pouch_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2172 (class 0 OID 0)
+-- Dependencies: 194
+-- Name: pouch_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE pouch_id_seq OWNED BY pouch.id;
+
+
+--
+-- TOC entry 185 (class 1259 OID 17041)
+-- Name: thread; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE thread (
+    id integer NOT NULL,
+    link character varying
+);
+
+
+ALTER TABLE thread OWNER TO postgres;
+
+--
+-- TOC entry 186 (class 1259 OID 17044)
+-- Name: thread_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE thread_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE thread_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2173 (class 0 OID 0)
+-- Dependencies: 186
+-- Name: thread_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE thread_id_seq OWNED BY thread.id;
+
+
+--
+-- TOC entry 187 (class 1259 OID 17070)
+-- Name: urls; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE urls (
+    id integer NOT NULL,
+    name character varying,
+    link character varying
+);
+
+
+ALTER TABLE urls OWNER TO postgres;
+
+--
+-- TOC entry 188 (class 1259 OID 17073)
+-- Name: urls_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE urls_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE urls_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 2174 (class 0 OID 0)
+-- Dependencies: 188
+-- Name: urls_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE urls_id_seq OWNED BY urls.id;
+
+
+--
+-- TOC entry 2025 (class 2604 OID 17020)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "character" ALTER COLUMN id SET DEFAULT nextval('character_id_seq'::regclass);
+
+
+--
+-- TOC entry 2029 (class 2604 OID 17092)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY id ALTER COLUMN id SET DEFAULT nextval('id_id_seq'::regclass);
+
+
+--
+-- TOC entry 2028 (class 2604 OID 17100)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY inventory ALTER COLUMN id SET DEFAULT nextval('inventory_id_seq'::regclass);
+
+
+--
+-- TOC entry 2024 (class 2604 OID 17006)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY player ALTER COLUMN id SET DEFAULT nextval('player_id_seq'::regclass);
+
+
+--
+-- TOC entry 2030 (class 2604 OID 17114)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY pouch ALTER COLUMN id SET DEFAULT nextval('pouch_id_seq'::regclass);
+
+
+--
+-- TOC entry 2026 (class 2604 OID 17046)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY thread ALTER COLUMN id SET DEFAULT nextval('thread_id_seq'::regclass);
+
+
+--
+-- TOC entry 2027 (class 2604 OID 17075)
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY urls ALTER COLUMN id SET DEFAULT nextval('urls_id_seq'::regclass);
+
+
+--
+-- TOC entry 2034 (class 2606 OID 17025)
+-- Name: character_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "character"
+    ADD CONSTRAINT character_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2042 (class 2606 OID 17097)
+-- Name: id_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY id
+    ADD CONSTRAINT id_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2040 (class 2606 OID 17108)
+-- Name: inventory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY inventory
+    ADD CONSTRAINT inventory_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2032 (class 2606 OID 17014)
+-- Name: player_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY player
+    ADD CONSTRAINT player_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2044 (class 2606 OID 17119)
+-- Name: pouch_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY pouch
+    ADD CONSTRAINT pouch_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2036 (class 2606 OID 17069)
+-- Name: thread_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY thread
+    ADD CONSTRAINT thread_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2038 (class 2606 OID 17080)
+-- Name: urls_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY urls
+    ADD CONSTRAINT urls_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2045 (class 2606 OID 17026)
+-- Name: character_player_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "character"
+    ADD CONSTRAINT character_player_id_fkey FOREIGN KEY (player_id) REFERENCES player(id);
+
+
+--
+-- TOC entry 2166 (class 0 OID 0)
+-- Dependencies: 6
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+-- Completed on 2017-07-04 22:17:02
+
+--
+-- PostgreSQL database dump complete
+--
+
