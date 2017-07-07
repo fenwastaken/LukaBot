@@ -16,7 +16,11 @@ import managers.CharacterManager;
 import managers.PlayerManager;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.MessageUpdateEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import objects.FolkBox;
 
@@ -28,10 +32,30 @@ public class CommandManager extends ListenerAdapter{
 		this.h = h;
 	}
 
+	public void onReady(ReadyEvent event){
+
+	}
+
+	public void onMessageUpdate(MessageUpdateEvent event) {
+		MessageReceivedEvent eve = new MessageReceivedEvent(Handler.jda, event.getResponseNumber(), event.getMessage());
+		commands(eve);
+	}
+	
+//	public void onPrivateMessageReceived(PrivateMessageReceivedEvent event){
+//		Handler.ev = new MessageReceivedEvent(Handler.jda, event.getResponseNumber(), event.getMessage());
+//		Handler.channel = null;
+//		Handler.upm = event.getAuthor();
+//		Tools.helpMaker();
+//	}
+	
 	public void onMessageReceived(MessageReceivedEvent event){
+		commands(event);
+	}
+	
+	public void commands(MessageReceivedEvent event){
 		Handler.ev = event;
 		Handler.channel = event.getTextChannel();
-
+		
 		//that fb goes through all methods
 		FolkBox fb = new FolkBox();
 

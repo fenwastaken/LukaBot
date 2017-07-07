@@ -38,7 +38,14 @@ public class Tools {
 	}
 
 	public static void sendMessage(String text){
-		Handler.channel.sendMessage(text).queue();
+		if(!(Handler.channel == null)){
+			Handler.channel.sendMessage(text).queue();
+		}
+		else{
+			if(!(Handler.upm == null)){
+				Handler.jda.getPrivateChannelById(Handler.upm.getId()).sendMessage(text).queue();
+			}
+		}
 	}
 
 	public static void setMethodVector(){

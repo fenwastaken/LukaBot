@@ -7,6 +7,7 @@ import discordBot.Details;
 import gui.GUI;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 public class Handler {
@@ -17,10 +18,11 @@ public class Handler {
 	
 	public static MessageReceivedEvent ev = null;
 	public static TextChannel channel = null;
+	public static User upm = null;
 
 	
 	//infos
-	public static String versionNumber = "1.5b";
+	public static String versionNumber = "1.6";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -49,7 +51,8 @@ public class Handler {
 	final public static String GET_THREAD = "thread";
 	final public static String GET_CHARACTERS = "character";
 	final public static String LAST_SEEN = "lastseen";
-	final public static String LOCK = "luka"; //must be set manually
+	/**/final public static String LOCK = "luka";/**/ //must be set manually
+	/*/final public static String LOCK = "lynn";/**/ //must be set manually
 	final public static String REMOVE_AVATAR = "avaboom";
 	final public static String RANK = "rankset";
 	final public static String GET_LINK = "link";

@@ -377,18 +377,36 @@ public class CharacterCommands {
 	public void grantItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ADD_ITEM, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
 			Folk target = null;
+			String ret = "";
 			if(fb.hasFolks()){
-				try{
-					target = fb.getFolkNbX(0);
-					int qt = Integer.parseInt(fb.getArguments().firstElement());
-					String item = fb.getArguments().elementAt(1);
-					InventoryManager.addItem(target.getDiscriminator(), item, qt);
-					Tools.sendMessage(target.getNick() + " recieved " + qt + " " + item + ".");
+				target = fb.getFolkNbX(0);
+				
+				fb.getArguments().removeElement("@" + target.getNick());
+				
+				ret = target.getNick() + " recieved ";
+				int i = 0;
+				
+					int qt = 0;
+					String item = "";
+					while(fb.getArguments().size() >= 2){
+						try{
+						qt = Integer.parseInt(fb.getArguments().firstElement());
+						item = fb.getArguments().elementAt(1);
+						System.out.println("ITEM " + item + " QTT: " + qt);
+						InventoryManager.addItem(target.getDiscriminator(), item, qt);
+						ret +=  qt + " " + item + ", ";
+						i++;
+					}
+						catch(NumberFormatException | SQLException e){
+							Tools.sendMessage("That '" + fb.getArguments().firstElement() + "' ..huh... was a weird number..");
+							e.printStackTrace();
+					}
+						fb.getArguments().remove(0);
+						fb.getArguments().remove(0);
 				}
-				catch(NumberFormatException | SQLException e){
-					Tools.sendMessage("That huh... was a weird number..");
-					e.printStackTrace();
-				}
+				
+				ret = ret.substring(0, ret.length() - 2) + ".";
+				Tools.sendMessage(ret);
 			}
 			else{
 				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
@@ -535,13 +553,15 @@ public class CharacterCommands {
 				munnies = true;
 			}
 			if(copper > 0){
-				ret += copper + " Copper coin(s).";
+				ret += copper + " Copper coin(s), ";
 				munnies = true;
 			}
 
 			if(!munnies){
-				ret = target.getNick() + " 's pouch is empty. :c";
+				ret = target.getNick() + " 's pouch is empty, ";
 			}
+			
+			ret = ret.substring(0, ret.length() - 2) + ".";
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

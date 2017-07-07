@@ -226,13 +226,17 @@ public class BasicCommands {
 	public void roll(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ROLL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String param = Tools.lastParameter(fb.getMessage(), 0).toLowerCase();
-			if(param.matches("[0-9]+d[0-9]+[+-][0-9]+") || param.matches("[0-9]+d[0-9]+")){
+			if(param.matches("[0-9]*d[0-9]+[+-][0-9]+") || param.matches("[0-9]*d[0-9]+")){
 				try{
-					int dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
+					int dice = 1;
 
+					if(param.indexOf("d") == 1){
+						dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
+					}
+					
 					int sides = -1;
 
-					if(param.matches("[0-9]*d[0-9]*[+-][0-9]*")){
+					if(param.matches("[0-9]*d[0-9]+[+-][0-9]+")){
 						int end = param.indexOf("+");
 						if(end == -1){
 							end = param.indexOf("-");
@@ -293,7 +297,7 @@ public class BasicCommands {
 				}
 			}
 			else{
-				Tools.sendMessage("Your dice must be built like: xdy or xdy+z where x, y and z are integers, " + fb.getAuthorNick() + ".");
+				Tools.sendMessage("Your dice must be built like: (x)dy(+z) where x, y and z are integers, " + fb.getAuthorNick() + ".");
 			}
 
 		}		
