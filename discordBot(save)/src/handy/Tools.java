@@ -24,6 +24,11 @@ import ohdata.OHRoles;
 
 public class Tools {
 
+	/**
+	 * returns true if the string parameter is numeric.
+	 * @param str
+	 * @return boolean
+	 */
 	public static boolean isNumeric(String str)  
 	{  
 		try  
@@ -37,6 +42,11 @@ public class Tools {
 		return true;  
 	}
 
+	/**
+	 * sends a message on the channel contained in the last event,
+	 * if null it will try to send to the last pmed user. WIP
+	 * @param text
+	 */
 	public static void sendMessage(String text){
 		if(!(Handler.channel == null)){
 			Handler.channel.sendMessage(text).queue();
@@ -48,27 +58,30 @@ public class Tools {
 		}
 	}
 
+	/**
+	 * feeds the Handler's method vectors if they have annotations
+	 */
 	public static void setMethodVector(){
 		Handler.vBasicMethods = new Vector<Method>();
 		Handler.vPermaMethods = new Vector<Method>();
 		Handler.vCharacterMethods = new Vector<>();
-		
+
 		Method[] basicMethods = BasicCommands.class.getMethods();
 		Method[] permaMethods = PermaCommands.class.getMethods();
 		Method[] characterMethods = CharacterCommands.class.getMethods();
-		
+
 		for (Method m : basicMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
 				Handler.vBasicMethods.add(m);
 			}
 		}
-		
+
 		for (Method m : permaMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
 				Handler.vPermaMethods.add(m);
 			}
 		}
-		
+
 		for (Method m : characterMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
 				Handler.vCharacterMethods.add(m);
@@ -76,6 +89,10 @@ public class Tools {
 		}
 	}
 
+	/**
+	 * Builds the help String from methods
+	 * @return String
+	 */
 	public static String helpMaker(){
 		Vector<String> vUsers = new Vector<String>();
 		Vector<String> vPlayers = new Vector<String>();
@@ -89,17 +106,17 @@ public class Tools {
 
 		Vector<Method[]> vecMethods = new Vector<>();
 		Vector<Method> vecMethodsAll = new Vector<>();
-		
+
 		vecMethods.add(methodsBasic);
 		vecMethods.add(methodsPerma);
 		vecMethods.add(methodsCharacter);
-		
+
 		for(Method[] meth : vecMethods){
 			for(Method m : meth){
 				vecMethodsAll.add(m);
 			}
 		}
-		
+
 
 		for (Method m : vecMethodsAll){
 			if (m.isAnnotationPresent(BotCom.class)){
@@ -305,7 +322,7 @@ public class Tools {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		System.out.println(discriminator + " " + ret.getString(ret.getValue()));
 		return ret;
 	}
@@ -342,11 +359,11 @@ public class Tools {
 	}
 
 	/**
-	 * fooking discord allowing names with spaces is fucking mu cuter
+	 * Rebuilds a nick from the vector argument from the element at "wholeParameter" excluded.
 	 * @param wholeParameter
 	 * @param vec
 	 * @param separator
-	 * @return
+	 * @return String
 	 */
 	public static String reBuilder(int wholeParameter, Vector<String> vec, String separator){
 
@@ -363,7 +380,12 @@ public class Tools {
 		return ret;
 
 	}
-	
+
+	/**
+	 * Removes the nick of the mentionned Folk in the FolkBox's argument vector. Useful to get rid of names with spaces mostly.
+	 * @param fb
+	 * @param target
+	 */
 	public static void argumentNickRemover(FolkBox fb, Folk target){
 		if(target.getNick().indexOf(" ") != -1){
 			String nickPiece = "@" + target.getNick().substring(0, target.getNick().indexOf(" "));
@@ -378,6 +400,10 @@ public class Tools {
 		}
 	}
 
+	/**
+	 * Return the number of threads in the database
+	 * @return int
+	 */
 	public static int countThread(){
 		int nbr = -3;
 		try {
@@ -389,6 +415,11 @@ public class Tools {
 		return nbr;
 	}
 
+	/**
+	 * Used for building Folkboxes
+	 * @param wanted int
+	 * @return Folk
+	 */
 	public static Folk getMentionNb(int wanted){
 		Vector<Folk> vecu = Tools.getMentionned();
 		String name = "";
@@ -409,6 +440,10 @@ public class Tools {
 		return null;
 	}
 
+	/**
+	 * Used for building Folkboxes
+	 * @return Vector<Folk>
+	 */
 	public static Vector<Folk> getMentionned(){
 		List<User> list = Handler.ev.getMessage().getMentionedUsers();
 		Vector<Folk> ret = new Vector<>();
@@ -424,6 +459,10 @@ public class Tools {
 		return ret;
 	}
 
+	/**
+	 * Used for building Folkboxes
+	 * @return
+	 */
 	public static Folk getAuthor(){
 		User auth = Handler.ev.getAuthor();
 		String disc = auth.getDiscriminator();
