@@ -14,7 +14,7 @@ public class CharacterManager {
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setBoolean(1, active);
 		st.setString(2, discriminator);
-		st.setString(3, nick);
+		st.setString(3, nick.toLowerCase());
 		st.executeUpdate();
 	}
 
@@ -22,7 +22,7 @@ public class CharacterManager {
 		String sql = "UPDATE character SET active = ? WHERE character_name = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setBoolean(1, active);
-		st.setString(2, nick);
+		st.setString(2, nick.toLowerCase());
 		st.executeUpdate();
 	}
 

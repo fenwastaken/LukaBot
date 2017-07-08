@@ -359,8 +359,23 @@ public class Tools {
 		}
 
 		ret = ret.substring(0, ret.length() - separator.length());
+		System.out.println("REBUILT: " + ret);
 		return ret;
 
+	}
+	
+	public static void argumentNickRemover(FolkBox fb, Folk target){
+		if(target.getNick().indexOf(" ") != -1){
+			String nickPiece = "@" + target.getNick().substring(0, target.getNick().indexOf(" "));
+			int position = fb.getArguments().indexOf(nickPiece);
+			while(fb.getArguments().size() > position){
+				System.out.println("REMOVING " + fb.getArguments().lastElement());
+				fb.getArguments().remove(fb.getArguments().lastElement());
+			}
+		}else{
+			System.out.println("REMOVING: " + "@" + target.getNick());
+			fb.getArguments().removeElement("@" + target.getNick());
+		}
 	}
 
 	public static int countThread(){

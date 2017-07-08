@@ -381,7 +381,7 @@ public class CharacterCommands {
 			if(fb.hasFolks()){
 				target = fb.getFolkNbX(0);
 				
-				fb.getArguments().removeElement("@" + target.getNick());
+				Tools.argumentNickRemover(fb, target);
 				
 				ret = target.getNick() + " recieved ";
 				int i = 0;
@@ -481,6 +481,7 @@ public class CharacterCommands {
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.DEACTIVATE, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			if(!fb.getArguments().isEmpty()){
 				String nick = Tools.reBuilder(-1, fb.getArguments(), " ");
+				nick = nick.replace("@", "");
 				try {
 
 					ComLvl senderLvl = Tools.levelChecker(fb.getAuthorDiscriminator());
