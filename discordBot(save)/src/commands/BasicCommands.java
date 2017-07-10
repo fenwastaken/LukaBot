@@ -227,16 +227,22 @@ public class BasicCommands {
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ROLL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			String param = Tools.lastParameter(fb.getMessage(), 0).toLowerCase();
 			if(param.matches("[0-9]*d[0-9]+[+-][0-9]+") || param.matches("[0-9]*d[0-9]+")){
+				System.out.println("DICE");
 				try{
-					int dice = 1;
+					int dice = 0;
 
-					if(param.indexOf("d") == 1){
+					if(param.indexOf("d") == 0){
+						System.out.println("d20 style");
+						dice = 1;
+					}else{
+						System.out.println("DICE more than one :: d: " + param.indexOf("d"));
 						dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
 					}
 					
 					int sides = -1;
 
 					if(param.matches("[0-9]*d[0-9]+[+-][0-9]+")){
+						System.out.println("DICE with a + something");
 						int end = param.indexOf("+");
 						if(end == -1){
 							end = param.indexOf("-");
@@ -246,6 +252,7 @@ public class BasicCommands {
 						sides = Integer.parseInt(si);
 					}
 					else{
+						System.out.println("DICE no + something");
 						String si2 = param.substring(param.indexOf("d")+1);
 						System.out.println("SI2 " + si2);
 						sides = Integer.parseInt(si2);
