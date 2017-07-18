@@ -3,6 +3,7 @@ package managers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 
 import database.PostgreSQLJDBC;
@@ -127,7 +128,7 @@ public class PlayerManager {
 		return rank;
 	}
 	
-	public static String getDate(String name) throws SQLException{
+	public static String getDateToString(String name) throws SQLException{
 		String sql = "SELECT name, DATE_TRUNC('seconds', CURRENT_TIMESTAMP - last_seen) AS time FROM player WHERE discriminator = ? ORDER BY time;";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, name);
@@ -138,4 +139,17 @@ public class PlayerManager {
 		}
 		return ret;
 	}
+	
+	public static Timestamp getDate(String discriminator) throws SQLException{
+		String sql = "SELECT last_seen AS time FROM player WHERE discriminator = ? ORDER BY time;";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, discriminator);
+		ResultSet rs = st.executeQuery();
+		Timestamp ret = null;
+		if(rs.next()){
+			ret = rs.getTimestamp("time");
+		}
+		return ret;
+	}
+	
 }

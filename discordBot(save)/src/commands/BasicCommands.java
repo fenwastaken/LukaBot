@@ -117,7 +117,7 @@ public class BasicCommands {
 				try {
 					String discriminator = fb.getFolkNbX(0).getDiscriminator();
 					String nick = fb.getFolkNbX(0).getNick();
-					String ret = PlayerManager.getDate(discriminator);
+					String ret = PlayerManager.getDateToString(discriminator);
 					Tools.sendMessage(nick + " was last seen " + ret + " ago.");
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block

@@ -64,7 +64,7 @@ public class CommandManager extends ListenerAdapter{
 
 
 		if(!fb.getAuthor().getDiscriminator().equals(Details.DISCRIMINATOR)){
-			PassiveCommands pc = new PassiveCommands(fb.getAuthor().getDiscriminator(), fb.getAuthor().getName(), fb.getAuthorNick());
+			PassiveCommands pc = new PassiveCommands(fb);
 
 			//basic
 			if(!Handler.locked){
