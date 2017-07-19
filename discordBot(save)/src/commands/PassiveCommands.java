@@ -101,10 +101,10 @@ public class PassiveCommands {
 	}
 
 	public boolean moreThanADay(Date date){
-		final long MILLIS_PER_DAY = 24 * 60 * 60 * 1000L;
+		final long MILLIS_PER_DAY = (24 * 60 * 60 * 1000L)/2;
 		Date current = new Date();
 
-		boolean moreThanDay = Math.abs(current.getTime() - date.getTime()) > MILLIS_PER_DAY/2;
+		boolean moreThanDay = Math.abs(current.getTime() - date.getTime()) >= MILLIS_PER_DAY;
 
 		return moreThanDay;
 	}
