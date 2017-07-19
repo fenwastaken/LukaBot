@@ -44,7 +44,6 @@ public class PassiveCommands {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("HERE HERE");
 		updateDate(discriminator);
 	}
 

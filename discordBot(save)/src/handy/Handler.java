@@ -38,7 +38,7 @@ public class Handler {
 	public static Vector<String> vCharacter = new Vector<>();
 
 	//command names
-	final public static String GET_VERSION = "version";
+	final public static String GET_VERSION = "ver";
 	final public static String SET_KEY = "key";
 	final public static String GET_HELP = "help";
 	final public static String HELLO = "hello";
