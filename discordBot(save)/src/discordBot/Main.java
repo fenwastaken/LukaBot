@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Scanner;
 
 import commands.CommandManager;
+import commands.Games;
 import database.PostgreSQLJDBC;
 import gui.GUI;
 import handy.Handler;
@@ -21,6 +22,7 @@ public class Main {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
+		
 		Scanner scan = new Scanner(System.in);
 		int again = 0;
 
@@ -54,6 +56,9 @@ public class Main {
 					again = 0;
 				}
 			}
+			
+			Games.setVector();
+			
 		}
 	}
 

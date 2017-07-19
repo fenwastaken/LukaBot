@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.9c";
+	public static String versionNumber = "1.10";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -33,6 +33,7 @@ public class Handler {
 	public static Vector<Method> vBasicMethods;
 	public static Vector<Method> vPermaMethods;
 	public static Vector<Method> vCharacterMethods;
+	public static Vector<Method> vGamesMethods;
 	
 	public static Vector<String> vPlayer = new Vector<>();
 	public static Vector<String> vCharacter = new Vector<>();
@@ -69,6 +70,8 @@ public class Handler {
 	final public static String GET_POUCH = "pouch";
 	final public static String GIVE_MONEY = "pay";
 	final public static String ALTER_MONEY = "money";
+	final public static String GUESS = "guess";
+	final public static String GENERATE_WORD = "hangman";
 	
 	
 }

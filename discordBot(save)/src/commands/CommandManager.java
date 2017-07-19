@@ -27,7 +27,8 @@ import objects.FolkBox;
 public class CommandManager extends ListenerAdapter{
 
 	Handler h = null;
-
+	Games games = new Games();
+	
 	public CommandManager(Handler h){
 		this.h = h;
 	}
@@ -59,8 +60,8 @@ public class CommandManager extends ListenerAdapter{
 		//that fb goes through all methods
 		FolkBox fb = new FolkBox();
 
-		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
-				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
+//		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
+//				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
 
 
 		if(!fb.getAuthor().getDiscriminator().equals(Details.DISCRIMINATOR)){
@@ -86,6 +87,17 @@ public class CommandManager extends ListenerAdapter{
 						BotCom bc = m.getAnnotation(BotCom.class);
 						if(bc.type() == ComType.MSG || bc.type() == ComType.BOTH){ //checks that the command is intended for public message
 							m.invoke(character, fb);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				//games
+				for(Method m : Handler.vGamesMethods){
+					try {
+						BotCom bc = m.getAnnotation(BotCom.class);
+						if(bc.type() == ComType.MSG || bc.type() == ComType.BOTH){ //checks that the command is intended for public message
+							m.invoke(games, fb);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

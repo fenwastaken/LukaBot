@@ -49,7 +49,7 @@ public class PassiveCommands {
 
 	public void updateDate(String discriminator){
 		try {
-			sayHello();
+			//sayHello();
 			PlayerManager.updatePlayerDate(discriminator);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -101,7 +101,7 @@ public class PassiveCommands {
 	}
 
 	public boolean moreThanADay(Date date){
-		final long MILLIS_PER_DAY = (24 * 60 * 60 * 1000L)/2;
+		final long MILLIS_PER_DAY = (24 * 60 * 60 * 1000L)/3;
 		Date current = new Date();
 
 		boolean moreThanDay = Math.abs(current.getTime() - date.getTime()) >= MILLIS_PER_DAY;
