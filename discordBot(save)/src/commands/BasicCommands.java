@@ -14,6 +14,7 @@ import annotations.ComCategory;
 import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
+import dice.DiceResult;
 import dice.DiceType;
 import gnu.trove.impl.HashFunctions;
 import handy.Handler;
@@ -225,39 +226,41 @@ public class BasicCommands {
 	@BotCom(command = Handler.ROLL, lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void roll(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ROLL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			String param = Tools.lastParameter(fb.getMessage(), 0).toLowerCase();
-			if(param.matches("[0-9]*d[0-9]+[+-][0-9]+") || param.matches("[0-9]*d[0-9]+")){
-				System.out.println("DICE");
+			String message = fb.getMessage();
+			String param = message.substring(message.indexOf(" ") + 1);
+			String endMessage = "";
+			int end = -1; //dynamic end of the dice part before the hypothetic string part
+			System.out.println("PARAM: '" + param + "'");
+			if(param.matches("[0-9]*d[0-9]+([+-][0-9]+)?([ ](.*))?")){
 				try{
 					int dice = 0;
-
-					if(param.indexOf("d") == 0){
-						System.out.println("d20 style");
+					//checks the part before d, if there is none dice number is 1
+					if(param.matches("d[0-9]+([+-][0-9]+)?([ ](.*))?")){
+						System.out.println("no number before d");
 						dice = 1;
 					}else{
-						System.out.println("DICE more than one :: d: " + param.indexOf("d"));
+						System.out.println("number before d");
 						dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
 					}
 					
+					System.out.println("NUMBER OF DICE: " + dice);
+					
 					int sides = -1;
-
-					if(param.matches("[0-9]*d[0-9]+[+-][0-9]+")){
-						System.out.println("DICE with a + something");
-						int end = param.indexOf("+");
+					//get the number of sides
+						end = param.indexOf("+");
 						if(end == -1){
 							end = param.indexOf("-");
 						}
+						if(end == -1){
+							end = param.indexOf(" ");
+						}
+						if(end == -1){
+							end = param.length();
+						}
 						String si = param.substring((param.indexOf("d")+1), end);
-						System.out.println("SI " + si);
 						sides = Integer.parseInt(si);
-					}
-					else{
-						System.out.println("DICE no + something");
-						String si2 = param.substring(param.indexOf("d")+1);
-						System.out.println("SI2 " + si2);
-						sides = Integer.parseInt(si2);
-					}
 
+						System.out.println("NUMBER OF SIDES: " + sides);
 
 					String overkill = "";
 
@@ -276,35 +279,95 @@ public class BasicCommands {
 
 					DiceType dt = new DiceType(sides, dice);
 
-					if(param.matches("[0-9]*d[0-9]*[+-][0-9]*")){
+					//matches with a dice that has a modifier
+					if(param.matches("[0-9]*d[0-9]+[+-][0-9]+([ ](.*))?")){
 						int start = param.indexOf("+");
 						if(start == -1){
 							start = param.indexOf("-");
 						}
-						int modifier = Integer.parseInt(param.substring(start, param.length()));
-						if(modifier > 100){
+						
+						end = param.indexOf(" ", start);
+						if(end == -1){
+							end = param.length();
+						}
+						
+						int modifier = Integer.parseInt(param.substring(start, end));
+						if(modifier > 100 || modifier < -100){
 							if(overkill.length()>0){
 								overkill+= ", ";
 							}
-							overkill += "100 as modifier max";
-							modifier = 100;
+							overkill += "(-/+)100 as modifier max";
+							if(modifier > 100){
+								modifier = 100;
+							}
+							else{
+								modifier = -100;
+							}
 						}
-						System.out.println("MODIFIER: " + modifier);
 						dt.setModifier(modifier);
+					}
+					else{
+						//no modifier
+						end = param.indexOf(" ", param.indexOf("d"));
+						if(end == -1){
+							end = param.length();
+						}
 					}
 
 					if(overkill.length()>0){
 						overkill += ".";
 						Tools.sendMessage(overkill);
 					}
-					Tools.sendMessage(fb.getAuthorNick() + " rolled " + dt.roll().toString());
+					DiceResult dr = dt.roll();
+					String ret = fb.getAuthorNick() + " rolled " + dr.toString();
+					
+					//gets message if there is one
+					if(end != -1 && end < param.length()){
+						System.out.println("END: " + end + ", LENGTH" + + param.length());
+						endMessage = param.substring(end + 1, param.length());
+						System.out.println("END MESSAGE: " + endMessage);
+						
+						ret += " " + endMessage;
+						
+						//gets the check expression if there is one
+						if(endMessage.startsWith("/")){
+							int endCheck = endMessage.indexOf(" ");
+							if(endCheck == -1){
+								endCheck = endMessage.length();
+							}
+							String check = endMessage.substring(1, endCheck);
+							System.out.println("CHECK: " + check + ", DR: " + dr.toInt());
+							if(Tools.isNumeric(check)){
+								endCheck = Integer.parseInt(check);
+								if((dr.toInt()) >= endCheck){
+									ret+= " SUCCESS!!";
+								}
+								else{
+									ret+= " FAILED!!";
+								}
+							}
+						}
+					}
+				
+					//check for fumble or critical
+					if(dr.toInt() == 1){
+						ret += " FUMBLE!";
+					}
+					
+					if(dr.toInt() == sides){
+						ret += " CRITICAL!";
+					}
+					
+					Tools.sendMessage(ret);
 				}
 				catch(NumberFormatException e){
 					System.out.println("NUMBERFORMATEXCEPTION\n " + e.getMessage());
 				}
 			}
 			else{
-				Tools.sendMessage("Your dice must be built like: (x)dy(+z) where x, y and z are integers, " + fb.getAuthorNick() + ".");
+				Tools.sendMessage("Your dice must be built like: (x)dy(+z)(\" \"message) "
+						+ "where x, y and z are integers, the message can be anything "
+						+ "as long as it starts with a whitespace, " + fb.getAuthorNick() + ".");
 			}
 
 		}		

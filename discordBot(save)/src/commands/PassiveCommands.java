@@ -49,7 +49,7 @@ public class PassiveCommands {
 
 	public void updateDate(String discriminator){
 		try {
-			//sayHello();
+			sayHello();
 			PlayerManager.updatePlayerDate(discriminator);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
