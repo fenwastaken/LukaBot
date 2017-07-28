@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.11";
+	public static String versionNumber = "1.13";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -73,5 +73,8 @@ public class Handler {
 	final public static String GUESS = "guess";
 	final public static String GENERATE_WORD = "hangman";
 	
+	//channel names
+	final public static String CHAN_MAIN = "general";
+	final public static String CHAN_FUN = "autismcentral";
 	
 }

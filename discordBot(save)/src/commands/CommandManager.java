@@ -60,8 +60,8 @@ public class CommandManager extends ListenerAdapter{
 		//that fb goes through all methods
 		FolkBox fb = new FolkBox();
 
-//		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
-//				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
+		System.out.println(fb.getMessage() + " | " + fb.getAuthor().getDiscriminator() + " | " + fb.getAuthor().getName()
+				+ " | " + fb.getAuthorNick() + " | " + Handler.channel.getName());
 
 
 		if(!fb.getAuthor().getDiscriminator().equals(Details.DISCRIMINATOR)){

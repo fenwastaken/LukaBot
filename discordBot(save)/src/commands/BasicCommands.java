@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import javax.tools.Tool;
@@ -23,12 +25,15 @@ import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
 import managers.UrlsManager;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.User;
 import managers.InventoryManager;
 import objects.Folk;
 import objects.FolkBox;
 
 public class BasicCommands {
-	
+
 	@BotCom(command = Handler.SET_LINK , lvl = ComLvl.TRUSTED, type = ComType.MSG, category = ComCategory.TRUSTED)
 	public void setLink(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_LINK, Comparison.STARTS_WITH, ComLvl.TRUSTED)){
@@ -230,7 +235,6 @@ public class BasicCommands {
 			String param = message.substring(message.indexOf(" ") + 1);
 			String endMessage = "";
 			int end = -1; //dynamic end of the dice part before the hypothetic string part
-			System.out.println("PARAM: '" + param + "'");
 			if(param.matches("[0-9]*d[0-9]+([+-][0-9]+)?([ ](.*))?")){
 				try{
 					int dice = 0;
@@ -242,25 +246,25 @@ public class BasicCommands {
 						System.out.println("number before d");
 						dice = Integer.parseInt(param.substring(0 , param.indexOf("d")));
 					}
-					
+
 					System.out.println("NUMBER OF DICE: " + dice);
-					
+
 					int sides = -1;
 					//get the number of sides
-						end = param.indexOf("+");
-						if(end == -1){
-							end = param.indexOf("-");
-						}
-						if(end == -1){
-							end = param.indexOf(" ");
-						}
-						if(end == -1){
-							end = param.length();
-						}
-						String si = param.substring((param.indexOf("d")+1), end);
-						sides = Integer.parseInt(si);
+					end = param.indexOf("+");
+					if(end == -1){
+						end = param.indexOf("-");
+					}
+					if(end == -1){
+						end = param.indexOf(" ");
+					}
+					if(end == -1){
+						end = param.length();
+					}
+					String si = param.substring((param.indexOf("d")+1), end);
+					sides = Integer.parseInt(si);
 
-						System.out.println("NUMBER OF SIDES: " + sides);
+					System.out.println("NUMBER OF SIDES: " + sides);
 
 					String overkill = "";
 
@@ -285,12 +289,12 @@ public class BasicCommands {
 						if(start == -1){
 							start = param.indexOf("-");
 						}
-						
+
 						end = param.indexOf(" ", start);
 						if(end == -1){
 							end = param.length();
 						}
-						
+
 						int modifier = Integer.parseInt(param.substring(start, end));
 						if(modifier > 100 || modifier < -100){
 							if(overkill.length()>0){
@@ -320,15 +324,15 @@ public class BasicCommands {
 					}
 					DiceResult dr = dt.roll();
 					String ret = fb.getAuthorNick() + " rolled " + dr.toString();
-					
+
 					//gets message if there is one
 					if(end != -1 && end < param.length()){
 						System.out.println("END: " + end + ", LENGTH" + + param.length());
 						endMessage = param.substring(end + 1, param.length());
 						System.out.println("END MESSAGE: " + endMessage);
-						
+
 						ret += " " + endMessage;
-						
+
 						//gets the check expression if there is one
 						if(endMessage.startsWith("/")){
 							int endCheck = endMessage.indexOf(" ");
@@ -348,29 +352,154 @@ public class BasicCommands {
 							}
 						}
 					}
-				
+
 					//check for fumble or critical
 					if(dr.toInt() == 1){
 						ret += " FUMBLE!";
 					}
-					
+
 					if(dr.toInt() == sides){
 						ret += " CRITICAL!";
 					}
-					
+
 					Tools.sendMessage(ret);
 				}
 				catch(NumberFormatException e){
 					System.out.println("NUMBERFORMATEXCEPTION\n " + e.getMessage());
 				}
 			}
+			else if(fb.getArguments().elementAt(0).equals("player")){
+				System.out.println("IIIIIN");
+
+				Vector<String> vecRoles = new Vector<>();
+				for(Role r : Handler.ev.getGuild().getRoles()){
+					vecRoles.add(r.getName().toLowerCase());	
+				}
+
+				if(fb.getArguments().size() > 1){
+					String argument1 = fb.getArguments().elementAt(1);
+					if(Tools.isNumeric(argument1)){
+						if(fb.getArguments().size() > 2){
+							//1 number 1 role
+							System.out.println(" in here");
+							String raw = Tools.reBuilder(-1, fb.getArguments(), " ");
+							String argument2 = raw.substring(raw.indexOf(" ", 7) + 1);
+							System.out.println("ARGUMENT 2 " + argument2);
+							System.out.println(vecRoles.toString() + " !! " + argument2);
+							if(vecRoles.contains(argument2)){
+								System.out.println(" 1 number 1 role");
+								rollPlayer(Integer.parseInt(argument1), argument2);
+							}
+						}
+						else{
+							//1 number no role
+							rollPlayer(Integer.parseInt(argument1), "");
+							System.out.println(" 1 number no role");
+						}
+					}
+					else{
+						String argument2 = Tools.reBuilder(0, fb.getArguments(), " ").toLowerCase();
+						System.out.println("ARGUMENT 2: " + argument2);
+						if(vecRoles.contains(argument2)){
+							rollPlayer(1, argument2);
+						}
+						System.out.println(" no number 1 role");
+					}
+				}
+				else{
+					rollPlayer(1, "");
+					System.out.println(" no number no role");
+				}
+			}
 			else{
 				Tools.sendMessage("Your dice must be built like: (x)dy(+z)(\" \"message) "
 						+ "where x, y and z are integers, the message can be anything "
-						+ "as long as it starts with a whitespace, " + fb.getAuthorNick() + ".");
+						+ "as long as it starts with a whitespace, or you can also use " + Handler.key + Handler.ROLL + " player (integer), " + fb.getAuthorNick() + ".");
 			}
 
 		}		
+	}
+
+	public void rollPlayer(int number, String role){
+
+		Vector<String> vecRoles = new Vector<>();
+		for(Role r : Handler.ev.getGuild().getRoles()){
+			vecRoles.add(r.getName().toLowerCase());	
+		}
+
+		if(number > 100){
+			number = 100;
+			Tools.sendMessage(number + " players max!");
+		}
+
+		List<Member> lUser = Handler.ev.getGuild().getMembers();
+		Vector<String> vecNick = new Vector<>();
+		for(Member u : lUser){
+
+			if(role.equals("")){
+				if(!u.getUser().isBot()){
+					String name = Handler.ev.getGuild().getMemberById(u.getUser().getId()).getNickname();
+					if(name == null){
+						name = Handler.ev.getGuild().getMemberById(u.getUser().getId()).getEffectiveName();
+					}
+					vecNick.add(name);
+				}
+			}
+			else{
+				if(!u.getUser().isBot()){
+					Vector<String> userRoles = new Vector<>();
+					for(Role r : u.getRoles()){
+						userRoles.add(r.getName().toLowerCase());
+					}
+					if(userRoles.contains(role)){
+						String name = Handler.ev.getGuild().getMemberById(u.getUser().getId()).getNickname();
+						if(name == null){
+							name = Handler.ev.getGuild().getMemberById(u.getUser().getId()).getEffectiveName();
+						}
+						vecNick.add(name);
+					}
+
+				}
+			}
+		}
+
+		Vector<String> vecRet = new Vector<>();
+		for(int i = 0; i < number; i++){
+			System.out.println("VECNICK " + vecNick.toString());
+			DiceType dt = new DiceType(vecNick.size(), 1);
+			DiceResult dr = dt.roll();
+
+			if(vecNick.size() == 0){
+				Tools.sendMessage("No one was found!");
+				return;
+			}
+			else{
+				int num = dr.toInt() - 1;
+				System.out.println("NUM " + num);
+				vecRet.add(vecNick.elementAt(num));
+			}
+			
+		}
+
+		Collections.sort(vecRet);
+
+		String ret = "";
+		for(String st : vecRet){
+			ret += st + ", ";
+		}
+		ret = ret.substring(0, ret.length() - 2);
+
+		String formula =  "picked among " + vecNick.size() + " players!";
+
+		if(vecRet.size() == 1){
+			formula = " was " + formula;
+		}
+		else{
+			ret = "```" + ret + "```";
+			formula = " were " + formula;
+		}
+
+		Tools.sendMessage(ret + formula);
 	}
 
 	@BotCom(command = Handler.GET_THREAD , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)

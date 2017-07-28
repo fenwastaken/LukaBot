@@ -249,21 +249,22 @@ public class Games {
 	@BotCom(command = Handler.GENERATE_WORD , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void pickWord(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GENERATE_WORD, Comparison.EQUALS, ComLvl.PLAYER)){
-			if(word.equals("")){
-				Collections.shuffle(vec);
-				word = vec.firstElement();
-				System.out.println("CHOSEN "  + word + " : " + word.length());//____________________________
-				lastDiscriminator = "";
-				tried = "";
-				bool = new Boolean[word.length()];
-				for(int i = 0 ; i < bool.length ; i++){
-					bool[i] = false;
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN)){
+				if(word.equals("")){
+					Collections.shuffle(vec);
+					word = vec.firstElement();
+					lastDiscriminator = "";
+					tried = "";
+					bool = new Boolean[word.length()];
+					for(int i = 0 ; i < bool.length ; i++){
+						bool[i] = false;
+					}
+					Tools.sendMessage("A new word has been picked!");
+					Tools.sendMessage(display());
 				}
-				Tools.sendMessage("A new word has been picked!");
-				Tools.sendMessage(display());
-			}
-			else{
-				Tools.sendMessage("There already is a word to guess: " + display() + ".");
+				else{
+					Tools.sendMessage("There already is a word to guess: " + display() + ".");
+				}
 			}
 		}
 	}
@@ -271,68 +272,69 @@ public class Games {
 	@BotCom(command = Handler.GUESS , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void guess(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GUESS, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			if(!word.equals("")){
-				if(!lastDiscriminator.equals(fb.getAuthorDiscriminator())){
-					lastDiscriminator = fb.getAuthorDiscriminator();
-					String guess = fb.getArguments().firstElement();
-					System.out.println("GUESS " + guess);//____________________________
-					if(guess.length() == 1){
-						if(tried.indexOf(guess) == -1){
-							tried += guess;
-							System.out.println("111111111111");
-							System.out.println("CHECK BOOL " + Arrays.toString(bool));
-							boolean foundOne = false;
-							for(int i = 0; i < word.length() ; i++){
-								if(word.substring(i, i+1).equals(guess)){
-									bool[i] = true;
-									foundOne = true;
-									System.out.println("TRUE");
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN)){
+				if(!word.equals("")){
+					if(!lastDiscriminator.equals(fb.getAuthorDiscriminator())){
+						lastDiscriminator = fb.getAuthorDiscriminator();
+						String guess = fb.getArguments().firstElement();
+						if(guess.length() == 1){
+							if(tried.indexOf(guess) == -1){
+								tried += guess;
+								System.out.println("111111111111");
+								System.out.println("CHECK BOOL " + Arrays.toString(bool));
+								boolean foundOne = false;
+								for(int i = 0; i < word.length() ; i++){
+									if(word.substring(i, i+1).equals(guess)){
+										bool[i] = true;
+										foundOne = true;
+										System.out.println("TRUE");
+									}
+									else{
+										System.out.println("NOPE");
+									}
+								}
+
+								boolean won = true;
+								for(int j = 0 ; j < bool.length; j++){
+									if(bool[j] == false){
+										won = false;
+									}
+								}
+								if(won){
+									Tools.sendMessage(fb.getAuthorNick() + " found the word! it was " + word + "!");
+									word = "";
 								}
 								else{
-									System.out.println("NOPE");
+									if(foundOne){
+										Tools.sendMessage("Well played, " + guess + " was a good guess.");
+									}
+									else{
+										Tools.sendMessage("No " + guess + " in that word " + fb.getAuthorNick() + "!");
+									}
+									Tools.sendMessage("Here we are: " + display() + ".");
 								}
 							}
-
-							boolean won = true;
-							for(int j = 0 ; j < bool.length; j++){
-								if(bool[j] == false){
-									won = false;
-								}
+							else{
+								Tools.sendMessage(guess + " was tried already!");
 							}
-							if(won){
+						}else{
+							if(word.equals(guess)){
 								Tools.sendMessage(fb.getAuthorNick() + " found the word! it was " + word + "!");
 								word = "";
 							}
 							else{
-								if(foundOne){
-									Tools.sendMessage("Well played, " + guess + " was a good guess.");
-								}
-								else{
-									Tools.sendMessage("No " + guess + " in that word " + fb.getAuthorNick() + "!");
-								}
-								Tools.sendMessage("Here we are: " + display() + ".");
+								Tools.sendMessage("Hmm no, " + fb.getAuthorNick() + ", that't not it.");
 							}
 						}
-						else{
-							Tools.sendMessage(guess + " was tried already!");
-						}
-					}else{
-						if(word.equals(guess)){
-							Tools.sendMessage(fb.getAuthorNick() + " found the word! it was " + word + "!");
-							word = "";
-						}
-						else{
-							Tools.sendMessage("Hmm no, " + fb.getAuthorNick() + ", that't not it.");
-						}
 					}
+					else{
+						Tools.sendMessage("You can't try twice in a row, " + fb.getAuthorNick() + "!");
+					}
+
 				}
 				else{
-					Tools.sendMessage("You can't try twice in a row, " + fb.getAuthorNick() + "!");
+					Tools.sendMessage("There is no word chosen currently, try using " + Handler.key + Handler.GENERATE_WORD + ", " + fb.getAuthorNick() + ".");
 				}
-
-			}
-			else{
-				Tools.sendMessage("There is no word chosen currently, try using " + Handler.key + Handler.GENERATE_WORD + ", " + fb.getAuthorNick() + ".");
 			}
 		}
 	}

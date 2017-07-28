@@ -49,7 +49,10 @@ public class PassiveCommands {
 
 	public void updateDate(String discriminator){
 		try {
-			sayHello();
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN) 
+					|| Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+				sayHello();
+			}
 			PlayerManager.updatePlayerDate(discriminator);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -61,7 +64,7 @@ public class PassiveCommands {
 
 		if(PlayerManager.getDate(fb.getAuthorDiscriminator()) != null && moreThanADay(PlayerManager.getDate(fb.getAuthorDiscriminator()))){
 
-			DiceType dt = new DiceType(10, 1);
+			DiceType dt = new DiceType(20, 1);
 			String ret = "";
 			int result = dt.roll().toInt();
 			switch(result){
@@ -81,7 +84,7 @@ public class PassiveCommands {
 				ret = "Good to see you " + fb.getAuthorNick() + "!";
 				break;
 			case 6:
-				ret = "Hello helo " + fb.getAuthorNick() + " !";
+				ret = "Hello hello " + fb.getAuthorNick() + " !";
 				break;
 			case 7:
 				ret = "This " + fb.getAuthorNick() + " has returned! Hi!";
@@ -93,7 +96,37 @@ public class PassiveCommands {
 				ret = "How are you doing " + fb.getAuthorNick() + "?";
 				break;
 			case 10:
-				ret = "Oh! " + fb.getAuthorNick() + "! I missed you!";
+				ret = "My " + fb.getAuthorNick() + "-sense is tingling!";
+				break;
+			case 11:
+				ret = "That " + fb.getAuthorNick() + " is back for new adventures!!";
+				break;
+			case 12:
+				ret = "You activated my trap card " + fb.getAuthorNick() + "!";
+				break;
+			case 13:
+				ret = "Sometimes life surprises you with random " + fb.getAuthorNick() + "s appearing out of nowhere!";
+				break;
+			case 14:
+				ret = "I can see that in the near past " + fb.getAuthorNick() + " will join us! Am a psychic.";
+				break;
+			case 15:
+				ret = "Make room for " + fb.getAuthorNick() + "!";
+				break;
+			case 16:
+				ret = "_Pours a cup of tea for " + fb.getAuthorNick() + ". Here dear._";
+				break;
+			case 17:
+				ret = "_waves at " + fb.getAuthorNick() + "_";
+				break;
+			case 18:
+				ret = "_pats " + fb.getAuthorNick() + "._ Hullo!";
+				break;
+			case 19:
+				ret = "_ grabs a " + fb.getAuthorNick() + " out of her top hat as the crowd applauds! Magic!_";
+				break;
+			case 20:
+				ret = "_gives " + fb.getAuthorNick() + " a cookie!_";
 				break;
 			}
 			Tools.sendMessage(ret);
