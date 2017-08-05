@@ -4,22 +4,36 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import javax.swing.plaf.synth.SynthDesktopIconUI;
+
+import org.apache.http.impl.nio.ssl.SSLClientIOEventDispatch;
+
 import annotations.BotCom;
 import annotations.ComCategory;
 import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
+import cards.Card;
+import cards.Deck;
+import cards.Hand;
 import handy.Handler;
 import handy.Tools;
+import objects.Folk;
 import objects.FolkBox;
 
 public class Games {
 
+	//hangman
 	String word;
 	static Vector<String> vec;
 	Boolean[] bool;
 	String tried;
 	String lastDiscriminator;
+
+	//deck
+	Deck deck = null;
+	Vector<Hand> vecHand = null;
+	Deck discarded = null;
 
 	public Games(){
 		word = "";
@@ -28,6 +42,208 @@ public class Games {
 		bool = new Boolean[0];
 		lastDiscriminator = "";
 	}
+
+
+	//cards
+	@BotCom(command = Handler.MAKE_DECK , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void makeDeck(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.MAKE_DECK, Comparison.EQUALS, ComLvl.PLAYER)){
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN) || Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+				deck = new Deck("default");
+				vecHand = new Vector<Hand>();
+				discarded = new Deck("discarded");
+				deck.shuffle();
+				Tools.sendMessage("Deck was reset! (" + deck.getVecCard().size() + " cards).");
+			}
+		}
+	}
+
+	@BotCom(command = Handler.REVEAL , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void revealDeck(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REVEAL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN) || Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+				if(fb.getArguments().size()>0){
+					String argument = fb.getArguments().elementAt(0);
+
+					if(deck != null){
+						switch(argument){
+						case "deck":
+							Tools.sendMessage(deck.reveal() + " (" + deck.count() + " card(s))");
+							break;
+						case "hand":
+							checkHand(fb.getAuthor());
+							Hand h = getHandFromFolk(fb.getAuthor());
+							Tools.sendMessage(fb.getAuthorNick() + "'s hand: " + h.reveal() + " (" + h.getvHand().size() + " card(s))");
+							break;
+						case "card":
+							if(fb.getArguments().size() > 1){
+								String argument2 = fb.getArguments().elementAt(1);
+								if(hasCard(fb.getAuthor(), argument2)){
+									Hand hand = getHandFromFolk(fb.getAuthor());
+									String cardName = "";
+									for(Card c : hand.getvHand()){
+										if(c.getShortName().toLowerCase().equals(argument2.toLowerCase())){
+											cardName = c.getFullName();
+										}
+									}
+									Tools.sendMessage(fb.getAuthorNick() + " reveals a " + cardName + "!");
+								}
+								else{
+									Tools.sendMessage(fb.getAuthorNick() + " doesn't have that card!");
+								}
+							}
+							break;
+						}
+					}
+					else{
+						Tools.sendMessage("There is no deck set. Use " + Handler.key + Handler.MAKE_DECK + ", " + fb.getAuthorNick() + ".");
+					}
+				}
+
+			}
+		}
+	}
+
+	@BotCom(command = Handler.DRAW , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void draw(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.DRAW, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			if(Handler.channel.getName().equals(Handler.CHAN_FUN) || Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+				if(deck != null){
+					if(deck.getVecCard().size() > 0){
+						Card c = deck.getVecCard().firstElement();
+						String argument = fb.getArguments().elementAt(0);
+						switch(argument){
+						case "r":
+							getHandFromFolk(fb.getAuthor()).add(c);
+							deck.removeCard(c);
+							Tools.sendMessage(fb.getAuthorNick() + " drew a " + c.getFullName() + "!");
+							break;
+						case "h":
+							getHandFromFolk(fb.getAuthor()).add(c);
+							deck.removeCard(c);
+							Tools.sendPrivateMessage("You drew a " + c.getFullName() + "!" + getHandFromFolk(fb.getAuthor()).reveal(), fb.getAuthor());
+							Tools.sendMessage(fb.getAuthorNick() + " drew a card!");
+							break;
+						}
+					}
+					else{
+						Tools.sendMessage("The deck is empty!");
+					}
+				}
+				else{
+					Tools.sendMessage("There is no deck set. Use " + Handler.key + Handler.MAKE_DECK + ", " + fb.getAuthorNick() + ".");
+				}
+
+			}
+		}
+	}
+
+	public boolean hasCard(Folk f, String card){
+		checkHand(f);
+		Hand h = getHandFromFolk(f);
+		boolean ret = false;
+		for(Card c: h.getvHand()){
+			if(c.getShortName().toLowerCase().equals(card.toLowerCase())){
+				ret = true;
+			}
+		}
+		
+		return ret;
+	}
+	
+	public void checkHand(Folk f){
+		boolean exists = false;
+		for(Hand h : vecHand){
+			if(h.getDiscriminator().equals(f.getDiscriminator())){
+				exists = true;
+			}
+		}
+		if(!exists){
+			Hand hand = new Hand(f.getNick(), f.getDiscriminator(), deck);
+			vecHand.add(hand);
+		}
+	}
+
+	public Hand getHandFromFolk(Folk f){
+		checkHand(f);
+		Hand ret = null;
+		for(Hand h : vecHand){
+			if(h.getDiscriminator().equals(f.getDiscriminator())){
+				ret = h;
+			}
+		}
+		return ret;
+	}
+	
+		@BotCom(command = Handler.DISCARD , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+		public void discard(FolkBox fb){
+			if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.DISCARD, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+				if(Handler.channel.getName().equals(Handler.CHAN_FUN) || Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+					if(fb.getArguments().size() > 1){
+						String argumentType = fb.getArguments().elementAt(0);
+						String argumentCard = fb.getArguments().elementAt(1);
+						
+						if(argumentType.equals("r")){
+							if(hasCard(fb.getAuthor(), argumentCard)){
+								Hand h = getHandFromFolk(fb.getAuthor());
+								Card c = null;
+								for(Card card : h.getvHand()){
+									if(card.getShortName().toLowerCase().equals(argumentCard.toLowerCase())){
+										c = card;
+										System.out.println("FOUND");
+									}
+								}
+									System.out.println(h.reveal());
+									if(c == null){
+										System.out.println("C IS NULL");
+									}
+									else{
+										System.out.println(c.getFullName());
+										System.out.println(c.getShortName());
+									}
+									h.remove(c);
+									discarded.addCard(c);
+									Tools.sendMessage(fb.getAuthorNick() + " discarded a " + c.getFullName());
+								
+							}
+							else{
+								Tools.sendMessage("You don't have that card, " + fb.getAuthorNick() + ".");
+							}
+						}
+						else if(argumentType.equals("h")){
+							if(argumentCard.substring(0, 1).equals("#") && Tools.isNumeric(argumentCard.substring(1))){
+								int nb = Integer.parseInt(argumentCard.substring(1));
+								Hand h = getHandFromFolk(fb.getAuthor());
+								if(h.getvHand().size() >= nb){
+									Card c = h.getvHand().elementAt(nb - 1);
+									h.getvHand().remove(c);
+									discarded.addCard(c);
+									Tools.sendMessage(fb.getAuthorNick() + " discarded a card!");
+								}
+								else{
+									Tools.sendMessage("You don't have this many cards, " + fb.getAuthorNick());
+								}
+							}
+							
+						}
+						
+					}
+					
+				}
+			}
+		}
+	
+	//	@BotCom(command = Handler.MAKE_DECK , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	//	public void makeDeck(FolkBox fb){
+	//		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.MAKE_DECK, Comparison.EQUALS, ComLvl.PLAYER)){
+	//			if(Handler.channel.getName().equals(Handler.CHAN_FUN) || Handler.channel.getName().equals(Handler.CHAN_MAIN)){
+	//
+	//				
+	//			}
+	//		}
+	//	}
+
+	//hangman
 
 	public static void setVector(){
 		vec.add("abruptly");
@@ -243,7 +459,6 @@ public class Games {
 		vec.add("zipper");
 		vec.add("zodiac");
 		vec.add("zombievec");
-		System.out.println("HANGMAN VECTOR SET");
 	}
 
 	@BotCom(command = Handler.GENERATE_WORD , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
@@ -350,5 +565,9 @@ public class Games {
 			}
 		}
 		return ret;
+	}
+
+	public void makeDeck(){
+
 	}
 }

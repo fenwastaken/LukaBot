@@ -17,8 +17,11 @@ import commands.PermaCommands;
 import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.UserImpl;
 import objects.Folk;
 import objects.FolkBox;
 import ohdata.OHRoles;
@@ -52,10 +55,20 @@ public class Tools {
 		if(!(Handler.channel == null)){
 			Handler.channel.sendMessage(text).queue();
 		}
-		else{
-			if(!(Handler.upm == null)){
-				Handler.jda.getPrivateChannelById(Handler.upm.getId()).sendMessage(text).queue();
+	}
+	
+	public static void sendPrivateMessage(String text, Folk f){
+		List<User> u = Handler.jda.getUsers();
+		User user = Handler.jda.getUserById(f.getId());
+		
+		if(user != null){
+			if(!user.hasPrivateChannel()){
+				user.openPrivateChannel().complete();
 			}
+			((UserImpl)user).getPrivateChannel().sendMessage(text).queue();
+		}
+		else{
+			Tools.sendMessage("User not found");
 		}
 	}
 
@@ -484,6 +497,10 @@ public class Tools {
 		Folk folk = new Folk(disc, name, nick, id, lr);
 
 		return folk;
+	}
+	
+	public static String codeBlock(String str){
+		return "```" + str + "```";
 	}
 
 }

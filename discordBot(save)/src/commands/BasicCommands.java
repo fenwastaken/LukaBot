@@ -16,6 +16,7 @@ import annotations.ComCategory;
 import annotations.ComLvl;
 import annotations.ComType;
 import annotations.Comparison;
+import cards.Deck;
 import dice.DiceResult;
 import dice.DiceType;
 import gnu.trove.impl.HashFunctions;
@@ -138,6 +139,7 @@ public class BasicCommands {
 	public void hello(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.HELLO, Comparison.EQUALS, ComLvl.PLAYER)){
 			Tools.sendMessage("Hello, " + new FolkBox().getAuthorNick() + ".");
+			Deck d = new Deck("test");
 		}
 	}
 
@@ -163,7 +165,8 @@ public class BasicCommands {
 	@BotCom(command = Handler.GET_HELP, lvl = ComLvl.USER, type = ComType.BOTH, category = ComCategory.USERS)
 	public void getHelp(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_HELP, Comparison.EQUALS, ComLvl.USER)){
-			Tools.sendMessage(Tools.helpMaker());
+			String help = Tools.helpMaker();
+			Tools.sendPrivateMessage(help, fb.getAuthor());
 		}
 	}
 
@@ -354,7 +357,7 @@ public class BasicCommands {
 					}
 
 					//check for fumble or critical
-					if(dr.toInt() == 1){
+					if(dr.toInt() - dt.getModifier() == 1){
 						ret += " FUMBLE!";
 					}
 
@@ -414,7 +417,7 @@ public class BasicCommands {
 			else{
 				Tools.sendMessage("Your dice must be built like: (x)dy(+z)(\" \"message) "
 						+ "where x, y and z are integers, the message can be anything "
-						+ "as long as it starts with a whitespace, or you can also use " + Handler.key + Handler.ROLL + " player (integer), " + fb.getAuthorNick() + ".");
+						+ "as long as it starts with a whitespace, or you can also use " + Handler.key + Handler.ROLL + " player (integer (role)/role), " + fb.getAuthorNick() + ".");
 			}
 
 		}		

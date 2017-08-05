@@ -50,7 +50,9 @@ public class CommandManager extends ListenerAdapter{
 //	}
 	
 	public void onMessageReceived(MessageReceivedEvent event){
-		commands(event);
+		if(!event.getAuthor().isBot()){
+			commands(event);
+		}
 	}
 	
 	public void commands(MessageReceivedEvent event){

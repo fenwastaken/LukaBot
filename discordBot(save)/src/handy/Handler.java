@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.13";
+	public static String versionNumber = "1.14";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -70,8 +70,17 @@ public class Handler {
 	final public static String GET_POUCH = "pouch";
 	final public static String GIVE_MONEY = "pay";
 	final public static String ALTER_MONEY = "money";
+	
+	//games
+		//hangman
 	final public static String GUESS = "guess";
 	final public static String GENERATE_WORD = "hangman";
+		//cards
+	final public static String MAKE_DECK = "makedeck";
+	final public static String DRAW = "draw";
+	final public static String REVEAL = "reveal";
+	final public static String SHUFFLE = "shuffle";
+	final public static String DISCARD = "discard";
 	
 	//channel names
 	final public static String CHAN_MAIN = "general";
