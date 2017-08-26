@@ -1,5 +1,6 @@
 package handy;
 
+import java.awt.Color;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.Collections;
@@ -15,15 +16,20 @@ import commands.CharacterCommands;
 import commands.Games;
 import commands.PermaCommands;
 import managers.CharacterManager;
+import managers.InventoryManager;
 import managers.PlayerManager;
+import managers.PouchManager;
 import managers.ThreadManager;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.impl.UserImpl;
 import objects.Folk;
 import objects.FolkBox;
+import objects.Item;
 import ohdata.OHRoles;
 
 public class Tools {
@@ -56,11 +62,17 @@ public class Tools {
 			Handler.channel.sendMessage(text).queue();
 		}
 	}
-	
+
+	public static void sendMessage(MessageEmbed me){
+		if(!(Handler.channel == null)){
+			Handler.channel.sendMessage(me).queue();
+		}
+	}
+
 	public static void sendPrivateMessage(String text, Folk f){
 		List<User> u = Handler.jda.getUsers();
 		User user = Handler.jda.getUserById(f.getId());
-		
+
 		if(user != null){
 			if(!user.hasPrivateChannel()){
 				user.openPrivateChannel().complete();
@@ -103,7 +115,7 @@ public class Tools {
 				Handler.vCharacterMethods.add(m);
 			}
 		}
-		
+
 		for (Method m : gamesMethods){
 			if (m.isAnnotationPresent(BotCom.class)){
 				Handler.vGamesMethods.add(m);
@@ -311,7 +323,7 @@ public class Tools {
 		try {
 			int dbLvl = PlayerManager.getPlayerRank(discriminator);
 			FolkBox fb = new FolkBox();
-			if(CharacterManager.hasAvatar(discriminator) 
+			if(CharacterManager.hasPlayerAvatar(discriminator) 
 					&& fb.getAuthor().hasRole(OHRoles.PLAYER) 
 					&& dbLvl > 3 
 					&& dbLvl != 5){
@@ -365,7 +377,12 @@ public class Tools {
 
 	public static Vector<String> cutter(String message, String separator){
 		Vector<String> vec = new Vector<String>();
-		int start = message.indexOf(separator) + 1;
+
+		/*returns an empty vector if the separator is a space and there's only the command in the string.*/
+		if(separator.equals(" ") && message.indexOf(separator) < 0){return vec;
+		}
+
+		int start = message.indexOf(" ") + 1; /*removes command*/
 		int stop = message.indexOf(separator, start);
 		String ret = "";
 
@@ -498,9 +515,158 @@ public class Tools {
 
 		return folk;
 	}
-	
+
 	public static String codeBlock(String str){
 		return "```" + str + "```";
+	}
+
+	public static MessageEmbed inventoryMaker(Folk folk, String category){
+		EmbedBuilder builder = new EmbedBuilder();
+		try {
+			
+			if(category.equals("")){
+				builder.setTitle(folk.getNick() + " 's inventory:");
+				builder.setDescription(pouchToString(folk, true));
+			}
+
+			if(CharacterManager.hasThumbnail(folk.getDiscriminator(), folk.getNick())){
+				String thumblink = CharacterManager.getThumbnail(folk.getDiscriminator(), folk.getNick());
+				builder.setThumbnail(thumblink);
+			}
+
+			String state = CharacterManager.getInventoryStateFromDisNick(folk.getDiscriminator(), folk.getNick());
+			Color color = null;
+
+			if(state == null || state.isEmpty()){
+				state = "empty";
+			}
+
+			switch(state){
+			case "u":
+				color = new Color(102, 178, 255);
+				break;
+			case "l":
+				color = new Color(255, 128, 0);
+				break;
+			case "b":
+				color = new Color(255, 51, 51);
+				break;
+			default:
+				color = new Color(192, 192, 192);
+				break;
+			}
+
+			builder.setColor(color);
+
+			Vector<String> categories = 
+					InventoryManager.getAllCustomCategoriesFromCharId(folk.getDiscriminator(), folk.getNick());
+
+
+			/*one category*/
+			if(category != ""){
+				Vector<Item> vecItem = InventoryManager.getAllItemsOfCategory(folk.getDiscriminator(), folk.getNick(), category);
+				String items = "";
+
+				for(Item it : vecItem){
+					items += it.toString() + ", ";
+				}
+				
+				if(vecItem.size() < 1){
+					items = "empty";
+				}
+				else{
+					items = items.substring(0, items.length() - 2);
+				}
+				
+				builder.addField(category + ":", items, false);
+				
+				if(!CharacterManager.hasThumbnail(folk.getDiscriminator(), folk.getNick())){
+					builder.setTitle(folk.getNick() + " 's inventory:");
+				}
+				
+				return builder.build();
+			}else{
+				/*all categories*/
+				for(String cat : categories){
+					Vector<Item> vecItem = InventoryManager.getAllItemsOfCategory(folk.getDiscriminator(), folk.getNick(), cat);
+					String items = "";
+
+					for(Item it : vecItem){
+						items += it.toString() + ", ";
+					}
+					if(vecItem.size() < 1){
+						items = "empty";
+					}
+					else{
+						items = items.substring(0, items.length() - 2);
+					}
+					builder.addField(cat + ":", items, false);
+				}
+			}
+
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return builder.build();
+	}
+
+	public static String pouchToString(Folk target, boolean inventory){
+		String ret = "";
+		try {
+			int amount;
+			amount = PouchManager.getPouchContent(target.getDiscriminator(), target.getNick());
+			int platinum = amount/1000;
+			amount = amount%1000;
+			int gold = amount/100;
+			amount = amount%100;
+			int silver = amount/10;
+			int copper = amount%10;
+
+			if(!inventory){
+				ret = target.getNick() + " has ";
+			}
+			boolean munnies = false;
+			if(platinum > 0){
+				ret += platinum + " Platinum " + coinMaker(platinum) + ", ";
+				munnies = true;
+			}
+			if(gold > 0){
+				ret += gold + " Gold " + coinMaker(gold) + ", ";
+				munnies = true;
+			}
+			if(silver > 0){
+				ret += silver + " Silver " + coinMaker(silver) + ", ";
+				munnies = true;
+			}
+			if(copper > 0){
+				ret += copper + " Copper " + coinMaker(copper) + ", ";
+				munnies = true;
+			}
+
+			if(!munnies){
+				ret = target.getNick() + " 's pouch is empty, ";
+			}
+
+			ret = ret.substring(0, ret.length() - 2) + ".";
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return ret;
+
+	}
+
+	public static String coinMaker(int value){
+		String coin = "coin";
+		if(value > 1){
+			coin = "coins";
+		}
+
+		return coin;
 	}
 
 }

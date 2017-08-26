@@ -108,6 +108,20 @@ public class CharacterManager {
 		}
 		return ret;
 	}
+	
+	public static String getThumbnail(String discriminator, String nick) throws SQLException{
+		int id = PlayerManager.getPlayerIdFromDiscriminator(discriminator);
+		String sql = "SELECT thumbnail FROM character WHERE character_name = ? AND player_id = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, nick.toLowerCase());
+		st.setInt(2, id);
+		ResultSet rs = st.executeQuery();
+		String ret = "";
+		if(rs.next()){
+			ret = rs.getString("thumbnail");
+		}
+		return ret;
+	}
 
 	public static int getCharacterNbFromDiscriminator(String discriminator) throws SQLException{
 		String sql = "SELECT id FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?) AND active = ?";
@@ -176,7 +190,7 @@ public class CharacterManager {
 		return ret;
 	}
 	
-	public static boolean hasAvatar(String discriminator) throws SQLException{
+	public static boolean hasPlayerAvatar(String discriminator) throws SQLException{
 		String sql = "SELECT avatar FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?)";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
@@ -189,6 +203,53 @@ public class CharacterManager {
 			}
 		}
 		return ret;
+	}
+	
+	public static boolean hasThumbnail(String discriminator, String nick) throws SQLException{
+		String sql = "SELECT thumbnail FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?) AND character_name = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, discriminator);
+		st.setString(2, nick.toLowerCase());
+		ResultSet rs = st.executeQuery();
+		boolean ret = false;
+		while(rs.next()){
+			String avatar = rs.getString("thumbnail");
+			if(avatar != null && avatar.length() > 0){
+				ret = true;
+			}
+		}
+		return ret;
+	}
+	
+	public static String getInventoryStateFromDisNick(String discriminator, String nick) throws SQLException{
+		String sql = "SELECT inventory_state FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?) AND character_name = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, discriminator);
+		st.setString(2, nick.toLowerCase());
+		String state = "";
+		ResultSet rs = st.executeQuery();
+		if(rs.next()){
+			state = rs.getString("inventory_state");
+		}
+		return state;
+	}
+	
+	public static void updateInventoryState(String discriminator, String nick, String state) throws SQLException{
+		int characterId = getCharacterIdFromDiscNick(discriminator, nick);
+		String sql = "UPDATE public.character SET inventory_state = ? WHERE id = ?;";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, state);
+		st.setInt(2, characterId);
+		st.executeUpdate();
+	}
+	
+	public static void setThumbnail(String discriminator, String nick, String thumbnail) throws SQLException{
+		int characterId = getCharacterIdFromDiscNick(discriminator, nick);
+		String sql = "UPDATE public.character SET thumbnail = ? WHERE id = ?;";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setString(1, thumbnail);
+		st.setInt(2, characterId);
+		st.executeUpdate();
 	}
 
 }

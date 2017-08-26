@@ -1,5 +1,6 @@
 package commands;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,6 +27,7 @@ import managers.CharacterManager;
 import managers.PlayerManager;
 import managers.ThreadManager;
 import managers.UrlsManager;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.User;
@@ -139,7 +141,7 @@ public class BasicCommands {
 	public void hello(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.HELLO, Comparison.EQUALS, ComLvl.PLAYER)){
 			Tools.sendMessage("Hello, " + new FolkBox().getAuthorNick() + ".");
-			Deck d = new Deck("test");
+			Handler.ev.getChannel().deleteMessageById(Handler.ev.getMessageId());
 		}
 	}
 

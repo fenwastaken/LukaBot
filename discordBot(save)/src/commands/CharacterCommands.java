@@ -29,8 +29,11 @@ public class CharacterCommands {
 					int amount = Integer.parseInt(fb.getArguments().elementAt(0));
 					int multiplier = 0;
 					String currency = fb.getArguments().elementAt(1);
-					if(currency.equals("gold") || currency.equals("silver") || currency.equals("copper")){
+					if(currency.equals("platinum") || currency.equals("gold") || currency.equals("silver") || currency.equals("copper")){
 						switch(currency){
+						case "platinum":
+							multiplier = 1000;
+							break;
 						case "gold":
 							multiplier = 100;
 							break;
@@ -44,14 +47,14 @@ public class CharacterCommands {
 							break;
 						}
 						amount = amount * multiplier;
-							PouchManager.CreatePouchIfCharacterExists(target.getDiscriminator(), target.getNick());
-							if(PouchManager.pouchExists(target.getDiscriminator(), target.getNick())){
-								PouchManager.changeAmount(target.getDiscriminator(), target.getNick(), amount, "add");
-								Tools.sendMessage(pouchToString(target));
-							}
-							else{
-								Tools.sendMessage(target.getNick() + " has no pouch and can't be given one.");
-							}
+						PouchManager.CreatePouchIfCharacterExists(target.getDiscriminator(), target.getNick());
+						if(PouchManager.pouchExists(target.getDiscriminator(), target.getNick())){
+							PouchManager.changeAmount(target.getDiscriminator(), target.getNick(), amount, "add");
+							Tools.sendMessage(Tools.pouchToString(target, false));
+						}
+						else{
+							Tools.sendMessage(target.getNick() + " has no pouch and can't be given one.");
+						}
 					}
 					else{
 						Tools.sendMessage("What are those coins...?");
@@ -66,7 +69,7 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	@BotCom(command = Handler.GIVE_MONEY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void pay(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GIVE_MONEY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
@@ -79,8 +82,11 @@ public class CharacterCommands {
 					}
 					int multiplier = 0;
 					String currency = fb.getArguments().elementAt(1);
-					if(currency.equals("gold") || currency.equals("silver") || currency.equals("copper")){
+					if(currency.equals("platinum") || currency.equals("gold") || currency.equals("silver") || currency.equals("copper")){
 						switch(currency){
+						case "platinum":
+							multiplier = 1000;
+							break;
 						case "gold":
 							multiplier = 100;
 							break;
@@ -99,8 +105,8 @@ public class CharacterCommands {
 							if(PouchManager.pouchExists(target.getDiscriminator(), target.getNick())){
 								PouchManager.changeAmount(fb.getAuthorDiscriminator(), fb.getAuthorNick(), amount, "sub");
 								PouchManager.changeAmount(target.getDiscriminator(), target.getNick(), amount, "add");
-								Tools.sendMessage(pouchToString(fb.getAuthor()));
-								Tools.sendMessage(pouchToString(target));
+								Tools.sendMessage(Tools.pouchToString(fb.getAuthor(), false));
+								Tools.sendMessage(Tools.pouchToString(target, false));
 							}
 							else{
 								Tools.sendMessage(target.getNick() + " has no pouch and can't be given one.");
@@ -109,7 +115,7 @@ public class CharacterCommands {
 						else{
 							Tools.sendMessage("You don't have enough, " + fb.getAuthorNick() + ".");
 						}
-						
+
 					}
 					else{
 						Tools.sendMessage("What are those coins...?");
@@ -141,7 +147,7 @@ public class CharacterCommands {
 					Tools.sendMessage(target.getNick() + " was granted a brand new magic pouch!");
 				}
 
-				String ret = pouchToString(target);
+				String ret = Tools.pouchToString(target, false);
 				Tools.sendMessage(ret);
 
 			} catch (SQLException e) {
@@ -218,6 +224,27 @@ public class CharacterCommands {
 		}
 	}
 
+	@BotCom(command = Handler.SET_THUMBNAIL , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void setThumbnail(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_THUMBNAIL, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			if(fb.getArguments().size() > 0){
+				String tn = fb.getArguments().firstElement();
+				if(tn.contains("imgur")){
+					try {
+						CharacterManager.setThumbnail(fb.getAuthorDiscriminator(), fb.getAuthorNick(), tn);
+						Tools.sendMessage("Your thumbnail is set, " + fb.getAuthorNick() + ".");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				else{
+					Tools.sendMessage("You must use an imgur link, " + fb.getAuthorNick() + ".");
+				}
+			}
+		}
+	}
+	
 	@BotCom(command = Handler.SET_AVATAR , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void setAvatar(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_AVATAR, Comparison.STARTS_WITH, ComLvl.USER)){
@@ -318,20 +345,22 @@ public class CharacterCommands {
 	@BotCom(command = Handler.GET_INVENTORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void getInventory(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_INVENTORY, Comparison.STARTS_EQUALS, ComLvl.PLAYER)){
-			Folk target = null;
-			if(fb.hasFolks()){
-				target = fb.getFolkNbX(0);
-			}
-			else{
-				target = fb.getAuthor();
-			}
+
 			try {
-				String ret = InventoryManager.getInventory(target.getDiscriminator());
-				if(ret.length() == 2){
-					Tools.sendMessage(target.getNick() + "'s inventory is empty.");
+				InventoryManager.initiateInventory(fb.getAuthorDiscriminator(), fb.getAuthorNick());
+				if(fb.getArguments().size() > 0){
+					String category = fb.getArguments().elementAt(0).toLowerCase();
+
+					boolean has = InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category);
+					if(has){
+						Tools.sendMessage(Tools.inventoryMaker(fb.getAuthor(), category));
+					}
+					else{
+						Tools.sendMessage("You don't have that category in your inventory, " + fb.getAuthorNick() + ".");
+					}
 				}
 				else{
-					Tools.sendMessage(target.getNick() + "'s inventory: " + ret + ".");
+					Tools.sendMessage(Tools.inventoryMaker(fb.getAuthor(), ""));
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -343,126 +372,84 @@ public class CharacterCommands {
 	@BotCom(command = Handler.GIVE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void giveItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GIVE_ITEM, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			Folk target = null;
-			if(fb.hasFolks()){
-				try{
-					target = fb.getFolkNbX(0);
-					int qt = Integer.parseInt(fb.getArguments().firstElement());
-					String item = fb.getArguments().elementAt(1);
-
-					//
-					Item ret = InventoryManager.getObjectFromInventory(fb.getAuthorDiscriminator(), item);
-
-					if(ret == null){
-						Tools.sendMessage("You don't have enough of that object, " + fb.getAuthorNick() + ".");
-					}
-					else{
-						InventoryManager.remItem(fb.getAuthorDiscriminator(), item, qt);
-						InventoryManager.addItem(target.getDiscriminator(), item, qt);
-						Tools.sendMessage(fb.getAuthorNick() + " gave " + qt + " " + item + " to " + target.getNick() + ".");
-					}
-				}
-				catch(NumberFormatException | SQLException e){
-					Tools.sendMessage("That huh... was a weird number..");
-				}
-			}
-			else{
-				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
-			}
-
+			//foo
 		}
 	}
 
-	@BotCom(command = Handler.ADD_ITEM , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
+	@BotCom(command = Handler.MAKE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void grantItem(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ADD_ITEM, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
-			Folk target = null;
-			String ret = "";
-			if(fb.hasFolks()){
-				target = fb.getFolkNbX(0);
-				
-				Tools.argumentNickRemover(fb, target);
-				
-				ret = target.getNick() + " recieved ";
-				int i = 0;
-				
-					int qt = 0;
-					String item = "";
-					while(fb.getArguments().size() >= 2){
-						try{
-						qt = Integer.parseInt(fb.getArguments().firstElement());
-						item = fb.getArguments().elementAt(1);
-						System.out.println("ITEM " + item + " QTT: " + qt);
-						InventoryManager.addItem(target.getDiscriminator(), item, qt);
-						ret +=  qt + " " + item + ", ";
-						i++;
-					}
-						catch(NumberFormatException | SQLException e){
-							Tools.sendMessage("That '" + fb.getArguments().firstElement() + "' ..huh... was a weird number..");
-							e.printStackTrace();
-					}
-						fb.getArguments().remove(0);
-						fb.getArguments().remove(0);
-				}
-				
-				ret = ret.substring(0, ret.length() - 2) + ".";
-				Tools.sendMessage(ret);
-			}
-			else{
-				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
-			}
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.MAKE_ITEM, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			String line = fb.getEv().getMessage().getContent();
+			line = line.replaceAll(", ", ",");
 
-		}
-	}
 
-	@BotCom(command = Handler.REM_ITEM , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
-	public void takeItem(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REM_ITEM, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
-			Folk target = null;
-			if(fb.hasFolks()){
-				try{
-					target = fb.getFolkNbX(0);
-					int qt = Integer.parseInt(fb.getArguments().firstElement());
-					String item = fb.getArguments().elementAt(1);
-					String ret = InventoryManager.remItem(target.getDiscriminator(), item, qt);
 
-					switch(ret){
-					case "substracted":
-						Tools.sendMessage(target.getNick() + " lost " + qt + " " + item + ".");
-						break;
-					case "deleted":
-						Tools.sendMessage(target.getNick() + " lost all of their " + item + "(s).");
-						break;
-					case "not found":
-						Tools.sendMessage(target.getNick() + " had no " + item + " to begin with.");
-						break;
-					}
-				}
-				catch(NumberFormatException | SQLException e){
-					Tools.sendMessage("That huh... was a weird number..");
-					e.printStackTrace();
-				}
-			}
-			else{
-				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
-			}
+			if(line.contains("[") && line.contains("]")){
+				/*getting the category*/
+				int start = line.indexOf("[");
+				int stop = line.indexOf("]", start + 1);
+				String category = line.substring(start + 1, stop);
+				line = line.substring(0, start) + line.substring(stop + 2);
+				System.out.println("LINE: " + line);
+				Vector<String> vec = Tools.cutter(line, ",");
 
-		}
-	}
-
-	@BotCom(command = Handler.CLEAR_INVENTORY , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
-	public void clearItems(FolkBox fb){
-		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.CLEAR_INVENTORY, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
-			Folk target = null;
-			if(fb.hasFolks()){
 				try {
-					target = fb.getFolkNbX(0);
-					boolean worked = InventoryManager.clearItems(target.getDiscriminator());
-					if(worked){
-						Tools.sendMessage(target.getNick() + "'s inventory was cleared.");
+					if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
+						String mistakes = "";
+						String good = "";
+						int count = 0;
+						String removed = "";
+
+						for(String str : vec){
+							if(str.indexOf(" ") > 0){
+								try{
+									int qty = Integer.parseInt(str.substring(0, str.indexOf(" ")));
+									String item = str.substring(str.indexOf(" ") + 1);
+									good = good + qty + " * " + item + ", ";
+									int result = InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, qty, category);
+									count += qty;
+									
+									if(result < 1){
+										removed += item + " was deleted from " + category + ", "; 
+									}
+									
+								}
+								catch(NumberFormatException e){
+									mistakes+= "(" + str + "),";
+								}
+							}
+							else{
+								mistakes+= "(" + str + "),";
+							}
+						}
+						if(good.length() > 2){
+							good = good.substring(0, good.length()-2);
+						}
+
+						if(good.length() > 0){
+							
+							String formattedWords = "";
+							if(count > 1){
+								formattedWords = " items were ";
+							}
+							else{
+								formattedWords = " item was ";
+							}
+							
+							Tools.sendMessage("The following " + formattedWords + " added to [" + category + "]: " + good + ".");
+							
+							if(removed.length() > 0){
+								Tools.sendMessage(removed.substring(0, removed.length() - 2) + ".");
+							}
+							
+						}
+						if(mistakes.length()>0){
+							mistakes = mistakes.substring(0, mistakes.length() - 1);
+							Tools.sendMessage("The following items were not formatted properly: " + mistakes + ".");
+						}
 					}
 					else{
-						Tools.sendMessage(target.getNick() + "'s inventory was empty.");
+						Tools.sendMessage("You never added that category [" + category + "] to your inventory, " + fb.getAuthorNick() + ".");
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -470,9 +457,74 @@ public class CharacterCommands {
 				}
 			}
 			else{
-				Tools.sendMessage("You mentionned no one, " + fb.getAuthorNick() + ".");
+				Tools.sendMessage("You need to add a [category] " + fb.getAuthorNick() + "!"); 
 			}
 
+		}
+	}
+
+	@BotCom(command = Handler.EXPORT_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void export(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.EXPORT_ITEM, Comparison.EQUALS, ComLvl.PLAYER)){
+			try {
+				Vector<String> vecCat = InventoryManager.getAllCustomCategoriesFromCharId(fb.getAuthorDiscriminator(), fb.getAuthorNick());
+				Vector<Item> vecItem;
+				String ret = "```";
+				
+				for(String cat : vecCat){
+					vecItem = InventoryManager.getAllItemsOfCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), cat);
+					ret += Handler.key + "make [" + cat + "] ";
+					for(Item it : vecItem){
+						ret += it.getQuantity() + " " + it.getName() + ", ";
+					}
+					ret = ret.substring(0, ret.length() - 2);
+					ret += "\n";
+				}
+				ret += "```";
+				
+				Tools.sendMessage(ret);
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@BotCom(command = Handler.REM_ITEM , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
+	public void takeItem(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REM_ITEM, Comparison.STARTS_WITH, ComLvl.GAMEMASTER)){
+			
+		}
+	}
+
+	@BotCom(command = Handler.CLEAR_INVENTORY , lvl = ComLvl.GAMEMASTER, type = ComType.MSG, category = ComCategory.GAMEMASTERS)
+	public void clearItems(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.CLEAR_INVENTORY, Comparison.STARTS_EQUALS, ComLvl.GAMEMASTER)){
+			if(fb.getArguments().size() > 0){
+				String category = fb.getArguments().firstElement();
+				try {
+					if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
+						InventoryManager.clearInventoryOfCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category);
+						Tools.sendMessage("Your " + category + " was cleared, " + fb.getAuthorNick() +".");
+					}
+					else{
+						Tools.sendMessage("you don't have this category in your inventory, " + fb.getAuthorNick() + ".");
+					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else{
+				try {
+					InventoryManager.clearInventory(fb.getAuthorDiscriminator(), fb.getAuthorNick());
+					Tools.sendMessage("Your inventory was cleared, " + fb.getAuthorNick() +".");
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -532,44 +584,7 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
-	public String pouchToString(Folk target){
-		String ret = "oopsies";
-		try {
-			int amount;
-			amount = PouchManager.getPouchContent(target.getDiscriminator(), target.getNick());
-			int gold = amount/100;
-			amount = amount%100;
-			int silver = amount/10;
-			int copper = amount%10;
 
-			ret = target.getNick() + " has ";
-			boolean munnies = false;
-			if(gold > 0){
-				ret += gold + " Gold coin(s), ";
-				munnies = true;
-			}
-			if(silver > 0){
-				ret += silver + " Silver coin(s), ";
-				munnies = true;
-			}
-			if(copper > 0){
-				ret += copper + " Copper coin(s), ";
-				munnies = true;
-			}
 
-			if(!munnies){
-				ret = target.getNick() + " 's pouch is empty, ";
-			}
-			
-			ret = ret.substring(0, ret.length() - 2) + ".";
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return ret;
-		
-	}
 
 }

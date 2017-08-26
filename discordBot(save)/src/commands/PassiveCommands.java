@@ -62,7 +62,7 @@ public class PassiveCommands {
 
 	public void sayHello() throws SQLException{
 
-		if(PlayerManager.getDate(fb.getAuthorDiscriminator()) != null && moreThanADay(PlayerManager.getDate(fb.getAuthorDiscriminator()))){
+		if(!Handler.greetingsLocked && PlayerManager.getDate(fb.getAuthorDiscriminator()) != null && moreThanADay(PlayerManager.getDate(fb.getAuthorDiscriminator()))){
 
 			DiceType dt = new DiceType(20, 1);
 			String ret = "";
@@ -129,6 +129,7 @@ public class PassiveCommands {
 				ret = "_gives " + fb.getAuthorNick() + " a cookie!_";
 				break;
 			}
+			
 			Tools.sendMessage(ret);
 		}
 	}

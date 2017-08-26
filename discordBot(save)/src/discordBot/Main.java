@@ -31,6 +31,7 @@ public class Main {
 
 				if(!Details.SIMPLE_NAME.equals("Luka")){
 					Handler.key = "§";
+					Handler.greetingsLocked = true;
 				}
 
 				PostgreSQLJDBC.getConnection();

@@ -190,17 +190,8 @@ public class Games {
 								for(Card card : h.getvHand()){
 									if(card.getShortName().toLowerCase().equals(argumentCard.toLowerCase())){
 										c = card;
-										System.out.println("FOUND");
 									}
 								}
-									System.out.println(h.reveal());
-									if(c == null){
-										System.out.println("C IS NULL");
-									}
-									else{
-										System.out.println(c.getFullName());
-										System.out.println(c.getShortName());
-									}
 									h.remove(c);
 									discarded.addCard(c);
 									Tools.sendMessage(fb.getAuthorNick() + " discarded a " + c.getFullName());
