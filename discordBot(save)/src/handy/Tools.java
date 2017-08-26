@@ -559,7 +559,7 @@ public class Tools {
 			builder.setColor(color);
 
 			Vector<String> categories = 
-					InventoryManager.getAllCustomCategoriesFromCharId(folk.getDiscriminator(), folk.getNick());
+					InventoryManager.getAllCustomCategoryNamesFromCharId(folk.getDiscriminator(), folk.getNick());
 
 
 			/*one category*/

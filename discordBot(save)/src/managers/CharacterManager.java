@@ -176,12 +176,12 @@ public class CharacterManager {
 		return ret;
 	}
 	
-	public static int getCharacterIdFromDiscNick(String discriminator, String charname) throws SQLException{
+	public static int getCharacterIdFromDiscNick(String discriminator, String nick) throws SQLException{
 		String sql = "SELECT id FROM character WHERE player_id = (SELECT id FROM player WHERE discriminator = ?) AND character.active = ? AND character_name = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setString(1, discriminator);
 		st.setBoolean(2, true);
-		st.setString(3, charname.toLowerCase());
+		st.setString(3, nick.toLowerCase());
 		ResultSet rs = st.executeQuery();
 		int ret = -2;
 		while(rs.next()){

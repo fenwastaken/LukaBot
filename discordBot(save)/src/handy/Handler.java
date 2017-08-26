@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.15";
+	public static String versionNumber = "1.16";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -66,6 +66,10 @@ public class Handler {
 	final public static String EXPORT_ITEM = "export";
 	final public static String CLEAR_INVENTORY = "clear";
 	final public static String GET_INVENTORY = "inv";
+	final public static String ADD_CATEGORY = "categoryadd";
+	final public static String REMOVE_CATEGORY = "categoryrem";
+	final public static String MOVE_CATEGORY = "categorymove";
+	final public static String INVENTORY_STATE = "inventorystate";
 	//avatar
 	final public static String SET_AVATAR = "avaset";
 	final public static String SET_THUMBNAIL = "thumbnailset";
@@ -73,6 +77,7 @@ public class Handler {
 	final public static String GET_AVATARLESS = "avatarless";
 	final public static String GET_AVATARFULL = "avatarfull";
 	final public static String REMOVE_AVATAR = "avaboom";
+	final public static String REMOVE_THUMBNAIL = "tnboom";
 	//pouch
 	final public static String GET_POUCH = "pouch";
 	final public static String GIVE_MONEY = "pay";

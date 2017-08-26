@@ -47,7 +47,6 @@ public class BasicCommands {
 				System.out.println("name " + name + " link " + link);
 				try{
 					if(!UrlsManager.exists(name)){
-						System.out.println("looks good");
 						UrlsManager.setLink(name, link);
 						Tools.sendMessage("Alrighty, I added the link for " + name);
 					}
@@ -72,7 +71,7 @@ public class BasicCommands {
 	public void getLink(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_LINK, Comparison.STARTS_EQUALS, ComLvl.USER)){
 			try {
-				if(!fb.getArguments().elementAt(0).equals(Handler.key + Handler.GET_LINK)){
+				if((fb.getArguments().size() > 0)){
 					String name = fb.getArguments().elementAt(0);
 
 					String link = UrlsManager.getLinkFromName(name);
@@ -87,7 +86,7 @@ public class BasicCommands {
 				else{
 					String ret = UrlsManager.getAllNames();
 					if(ret.length() > 0){
-						Tools.sendMessage("Here's what i got: " + ret);
+						Tools.sendMessage("Here's what I got: " + ret);
 					}
 					else{
 						Tools.sendMessage("I got no link saved yet.");
@@ -419,7 +418,8 @@ public class BasicCommands {
 			else{
 				Tools.sendMessage("Your dice must be built like: (x)dy(+z)(\" \"message) "
 						+ "where x, y and z are integers, the message can be anything "
-						+ "as long as it starts with a whitespace, or you can also use " + Handler.key + Handler.ROLL + " player (integer (role)/role), " + fb.getAuthorNick() + ".");
+						+ "as long as it starts with a whitespace, or you can also use " + 
+						Handler.key + Handler.ROLL + " player (integer (role)/role), " + fb.getAuthorNick() + ".");
 			}
 
 		}		
