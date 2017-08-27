@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.16";
+	public static String versionNumber = "1.17";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables
@@ -40,6 +40,8 @@ public class Handler {
 	public static Vector<String> vCharacter = new Vector<>();
 
 	//command names
+	final public static String TEST = "test";
+	
 	final public static String GET_VERSION = "ver";
 	final public static String SET_KEY = "key";
 	final public static String GET_HELP = "help";
@@ -70,6 +72,7 @@ public class Handler {
 	final public static String REMOVE_CATEGORY = "categoryrem";
 	final public static String MOVE_CATEGORY = "categorymove";
 	final public static String INVENTORY_STATE = "inventorystate";
+	final public static String SWAP = "swap";
 	//avatar
 	final public static String SET_AVATAR = "avaset";
 	final public static String SET_THUMBNAIL = "thumbnailset";

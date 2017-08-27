@@ -523,7 +523,7 @@ public class Tools {
 	public static MessageEmbed inventoryMaker(Folk folk, String category){
 		EmbedBuilder builder = new EmbedBuilder();
 		try {
-			
+
 			if(category.equals("")){
 				builder.setTitle(folk.getNick() + " 's inventory:");
 				builder.setDescription(pouchToString(folk, true));
@@ -570,20 +570,20 @@ public class Tools {
 				for(Item it : vecItem){
 					items += it.toString() + ", ";
 				}
-				
+
 				if(vecItem.size() < 1){
 					items = "empty";
 				}
 				else{
 					items = items.substring(0, items.length() - 2);
 				}
-				
+
 				builder.addField(category + ":", items, false);
-				
+
 				if(!CharacterManager.hasThumbnail(folk.getDiscriminator(), folk.getNick())){
 					builder.setTitle(folk.getNick() + " 's inventory:");
 				}
-				
+
 				return builder.build();
 			}else{
 				/*all categories*/
@@ -667,6 +667,63 @@ public class Tools {
 		}
 
 		return coin;
+	}
+
+	public static Vector<String> categoryFinder(String str){
+		Vector<String> categories = new Vector<>();
+		int start = 0;
+		int stop = 0;
+		while(str.contains("[")){
+			start = str.indexOf("[", stop);
+			stop = str.indexOf("]", start);
+			if(start < 0 || stop < 0){
+				break;
+			}
+			String category = str.substring(start + 1, stop);
+			start = stop;
+			categories.add(category);
+		}
+
+		return categories;
+
+	}
+
+	public static Vector<String> lastCategoryAndArgumentsFinder(String str, String separator, boolean withCategory){
+		Vector<String> categories = new Vector<>();
+		int start = 0;
+		int stop = 0;
+		int end = 0;
+		while(str.contains("[")){
+			start = str.indexOf("[", stop);
+			stop = str.indexOf("]", start);
+			if(start < 0 || stop < 0){
+				break;
+			}
+			String category = str.substring(start + 1, stop);
+			start = stop;
+			if(end < stop){
+				end = stop;
+			}
+			categories.add(category);
+		}
+		str = str.substring(end + 1);
+		str = str.replace(", ", ",");
+		Vector<String> args = Tools.cutter(str, separator);
+		System.out.println("ARGS " + args);
+		Vector<String> ret = new Vector<String>();
+		if(!categories.isEmpty()){
+			if(withCategory){
+				ret.add(categories.lastElement());
+			}	
+		}
+		else{
+			Tools.sendMessage("Error: Category not found");
+			return null;
+		}
+		for(String st :args){
+			ret.addElement(st);
+		}
+		return ret;
 	}
 
 }

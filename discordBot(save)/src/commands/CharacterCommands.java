@@ -244,7 +244,7 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	@BotCom(command = Handler.SET_AVATAR , lvl = ComLvl.USER, type = ComType.MSG, category = ComCategory.USERS)
 	public void setAvatar(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SET_AVATAR, Comparison.STARTS_WITH, ComLvl.USER)){
@@ -293,7 +293,7 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	@BotCom(command = Handler.REMOVE_THUMBNAIL , lvl = ComLvl.ADMIN, type = ComType.MSG, category = ComCategory.ADMINS)
 	public void remThumbnail(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REMOVE_THUMBNAIL, Comparison.STARTS_WITH, ComLvl.ADMIN)){
@@ -362,22 +362,38 @@ public class CharacterCommands {
 	@BotCom(command = Handler.GET_INVENTORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void getInventory(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GET_INVENTORY, Comparison.STARTS_EQUALS, ComLvl.PLAYER)){
-
+			String targetDisc = fb.getAuthorDiscriminator();
+			String targetNick = fb.getAuthorNick();
+			Folk folk = fb.getAuthor();
+			
+			if(fb.getMentionned().size() > 0){
+				targetDisc = fb.getMentionned().firstElement().getDiscriminator();
+				targetNick = fb.getMentionned().firstElement().getNick();
+				folk = fb.getMentionned().firstElement();
+			}
+			
+			Vector<String> vec = new Vector<>();
+			for(String str: fb.getArguments()){
+				if(str.indexOf("@") < 0){
+					vec.add(str);
+				}
+			}
+			
 			try {
-				InventoryManager.initiateInventory(fb.getAuthorDiscriminator(), fb.getAuthorNick());
-				if(fb.getArguments().size() > 0){
-					String category = fb.getArguments().elementAt(0).toLowerCase();
+				InventoryManager.initiateInventory(targetDisc, targetNick);
+				if(vec.size() > 0){
+					String category = vec.elementAt(0).toLowerCase();
 
-					boolean has = InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category);
+					boolean has = InventoryManager.hasCategoryFromdisNick(targetDisc, targetNick, category);
 					if(has){
-						Tools.sendMessage(Tools.inventoryMaker(fb.getAuthor(), category));
+						Tools.sendMessage(Tools.inventoryMaker(folk, category));
 					}
 					else{
-						Tools.sendMessage("You don't have that category in your inventory, " + fb.getAuthorNick() + ".");
+						Tools.sendMessage("No " + category + " category in that inventory, " + fb.getAuthorNick() + ".");
 					}
 				}
 				else{
-					Tools.sendMessage(Tools.inventoryMaker(fb.getAuthor(), ""));
+					Tools.sendMessage(Tools.inventoryMaker(folk, ""));
 				}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
@@ -389,8 +405,8 @@ public class CharacterCommands {
 	@BotCom(command = Handler.ADD_CATEGORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void giveItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ADD_CATEGORY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			if(fb.getArguments().size() > 0){
-				String category = fb.getArguments().firstElement();
+			if(Tools.categoryFinder(fb.getMessage()).size() > 0){
+				String category = Tools.categoryFinder(fb.getMessage()).firstElement();
 				try {
 					if(!InventoryManager.doesCategoryExist(category)){
 						InventoryManager.addCategory(category, false);
@@ -413,18 +429,18 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	@BotCom(command = Handler.REMOVE_CATEGORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void takeItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.REMOVE_CATEGORY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			if(fb.getArguments().size() > 0){
-				String category = fb.getArguments().firstElement();
+				String category = Tools.categoryFinder(fb.getMessage()).firstElement();
 				try {
 					if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
 						if(!InventoryManager.getCategoryTypeFromName(category)){
 							InventoryManager.deleteAllItemsOfACategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category);
 							InventoryManager.deleteCustomCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category);
-							
+
 							Vector<String> cat = InventoryManager.getAllCustomCategoryNamesFromCharId(fb.getAuthorDiscriminator(), fb.getAuthorNick());
 							int counter = 0;
 							for(String str : cat){
@@ -433,7 +449,7 @@ public class CharacterCommands {
 								InventoryManager.updateCategoryposition(fb.getAuthorDiscriminator(), fb.getAuthorNick(), categoryId, counter);
 							}
 							Tools.sendMessage(category + " was removed properly, " + fb.getAuthorNick());
-							
+
 						}
 						else{
 							Tools.sendMessage("that's not a category you're allowed to delete, " + fb.getAuthorNick() + "!");
@@ -449,15 +465,17 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	@BotCom(command = Handler.MOVE_CATEGORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void moveCategory(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.MOVE_CATEGORY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			if(fb.getArguments().size() > 1){
-				String category = fb.getArguments().firstElement();
+			Vector<String> args = Tools.lastCategoryAndArgumentsFinder(fb.getMessage(), " ", true);
+			if(args.size() > 1){
+				String category = args.firstElement();
 				try {
 					if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
-						String move = fb.getArguments().elementAt(1).toLowerCase();
+						String move = args.elementAt(1);
+						System.out.println("MOVE " + move);
 						if(!move.equals("up") && !move.equals("down")){
 							Tools.sendMessage("You can only move a category up or down,  not [" + move + "].");
 						}else{
@@ -470,7 +488,7 @@ public class CharacterCommands {
 								pos = 1;
 								break;
 							}
-							
+
 							try {
 								if(InventoryManager.moveCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category, pos)){
 									Tools.sendMessage("Category " + category + " was moved, " + fb.getAuthorNick() + "!");
@@ -478,12 +496,12 @@ public class CharacterCommands {
 								else{
 									Tools.sendMessage("you can't move that any higher/lower, " + fb.getAuthorNick() + "!");
 								}
-								
+
 							} catch (SQLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
-							
+
 						}
 					}
 					else{
@@ -499,15 +517,63 @@ public class CharacterCommands {
 			}
 		}
 	}
-	
+
 	/*@BotCom(command = Handler.GIVE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void giveItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GIVE_ITEM, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			//foo
 		}
 	}*/
-	
-	
+
+	@BotCom(command = Handler.SWAP , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	public void swapItem(FolkBox fb){
+		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.SWAP, Comparison.STARTS_WITH, ComLvl.PLAYER)){
+			Vector<String> categories = Tools.categoryFinder(fb.getMessage());
+			if(categories.size() > 1){
+				String category1 = categories.elementAt(0);
+				String category2 = categories.elementAt(1);
+				String line = fb.getMessage();
+
+				String args = Tools.lastCategoryAndArgumentsFinder(line, "," , false).firstElement();
+				if(args.indexOf(" ") > 0){
+					try{
+						int qty = Integer.parseInt(args.substring(0, args.indexOf(" ")));
+						String item = args.substring(args.indexOf(" ") + 1);
+						try {
+							if(InventoryManager.doesItemExist(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, category1)){
+								int available = InventoryManager.getItemQty(fb.getAuthorNick(), fb.getAuthorNick(), category1, item);
+								if(qty > available || qty < 0){
+									InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, -(qty), category1);
+									InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, qty, category2);
+									Tools.sendMessage(qty + " " + item + " was moved from " + category1 + " to " + category2 +", " + fb.getAuthorNick() + "." );
+								}
+								else{
+									Tools.sendMessage("You don't have enough of this or you used a negative quantity");
+								}
+							}
+							else{
+								Tools.sendMessage("You don't have any " + item + " in your " + category1 + " category.");
+							}
+						} catch (SQLException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					catch(NumberFormatException e){
+						Tools.sendMessage("What was that quantity...?");
+					}
+				}
+				else{
+					Tools.sendMessage("You need one quantity and one item, AFTER the two categories you want to transfert.");
+				}
+			}
+			else{
+				Tools.sendMessage("You need two categories");
+			}
+		}
+	}
+
+
 	@BotCom(command = Handler.INVENTORY_STATE , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void changeInventoryState(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.INVENTORY_STATE, Comparison.STARTS_WITH, ComLvl.PLAYER)){
@@ -521,9 +587,9 @@ public class CharacterCommands {
 				case "unlocked":
 					ret = "u";
 					break;
-					default:
-						Tools.sendMessage(state + " is neither locked or unlocked, " + fb.getAuthorNick() + ".");
-						return;
+				default:
+					Tools.sendMessage(state + " is neither locked or unlocked, " + fb.getAuthorNick() + ".");
+					return;
 				}
 				try {
 					CharacterManager.updateInventoryState(fb.getAuthorDiscriminator(), fb.getAuthorNick(), ret);
@@ -542,19 +608,26 @@ public class CharacterCommands {
 	@BotCom(command = Handler.MAKE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void grantItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.MAKE_ITEM, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			String line = fb.getEv().getMessage().getContent();
+			String line = fb.getMessage();
 			line = line.replaceAll(", ", ",");
+			if(Tools.categoryFinder(line).size()> 0){
 
-
-
-			if(line.contains("[") && line.contains("]")){
 				/*getting the category*/
-				int start = line.indexOf("[");
+				/*int start = line.indexOf("[");
 				int stop = line.indexOf("]", start + 1);
-				String category = line.substring(start + 1, stop);
+				String category = Tools.categoryFinder(line).firstElement();
 				line = line.substring(0, start) + line.substring(stop + 2);
 				System.out.println("LINE: " + line);
-				Vector<String> vec = Tools.cutter(line, ",");
+				Vector<String> vec = Tools.cutter(line, ",");*/
+
+				Vector<String> catfin = Tools.categoryFinder(line);
+				String category = catfin.firstElement();
+				Vector<String> vec = Tools.lastCategoryAndArgumentsFinder(line, ",", true);
+				for(String ca : catfin){
+					if(vec.contains(ca)){
+						vec.remove(ca);
+					}
+				}
 
 				try {
 					if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
@@ -571,11 +644,11 @@ public class CharacterCommands {
 									good = good + qty + " * " + item + ", ";
 									int result = InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, qty, category);
 									count += qty;
-									
+
 									if(result < 1){
 										removed += item + " was deleted from " + category + ", "; 
 									}
-									
+
 								}
 								catch(NumberFormatException e){
 									mistakes+= "(" + str + "),";
@@ -590,7 +663,7 @@ public class CharacterCommands {
 						}
 
 						if(good.length() > 0){
-							
+
 							String formattedWords = "";
 							if(count > 1){
 								formattedWords = " items were ";
@@ -598,13 +671,13 @@ public class CharacterCommands {
 							else{
 								formattedWords = " item was ";
 							}
-							
+
 							Tools.sendMessage("The following " + formattedWords + " added to [" + category + "]: " + good + ".");
-							
+
 							if(removed.length() > 0){
 								Tools.sendMessage(removed.substring(0, removed.length() - 2) + ".");
 							}
-							
+
 						}
 						if(mistakes.length()>0){
 							mistakes = mistakes.substring(0, mistakes.length() - 1);
@@ -633,7 +706,7 @@ public class CharacterCommands {
 				Vector<String> vecCat = InventoryManager.getAllCustomCategoryNamesFromCharId(fb.getAuthorDiscriminator(), fb.getAuthorNick());
 				Vector<Item> vecItem;
 				String ret = "```";
-				
+
 				for(String cat : vecCat){
 					vecItem = InventoryManager.getAllItemsOfCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), cat);
 					ret += Handler.key + "make [" + cat + "] ";
@@ -644,9 +717,9 @@ public class CharacterCommands {
 					ret += "\n";
 				}
 				ret += "```";
-				
+
 				Tools.sendMessage(ret);
-				
+
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
