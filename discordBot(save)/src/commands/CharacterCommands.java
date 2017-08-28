@@ -365,20 +365,18 @@ public class CharacterCommands {
 			String targetDisc = fb.getAuthorDiscriminator();
 			String targetNick = fb.getAuthorNick();
 			Folk folk = fb.getAuthor();
-			
+
+			System.out.println("THERE1");
+
 			if(fb.getMentionned().size() > 0){
 				targetDisc = fb.getMentionned().firstElement().getDiscriminator();
 				targetNick = fb.getMentionned().firstElement().getNick();
 				folk = fb.getMentionned().firstElement();
 			}
-			
-			Vector<String> vec = new Vector<>();
-			for(String str: fb.getArguments()){
-				if(str.indexOf("@") < 0){
-					vec.add(str);
-				}
-			}
-			
+
+
+			Vector<String> vec = Tools.categoryFinder(fb.getMessage());
+
 			try {
 				InventoryManager.initiateInventory(targetDisc, targetNick);
 				if(vec.size() > 0){
@@ -399,11 +397,12 @@ public class CharacterCommands {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			System.out.println("THERE4");
 		}
 	}
 
 	@BotCom(command = Handler.ADD_CATEGORY , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
-	public void giveItem(FolkBox fb){
+	public void addCategory(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.ADD_CATEGORY, Comparison.STARTS_WITH, ComLvl.PLAYER)){
 			if(Tools.categoryFinder(fb.getMessage()).size() > 0){
 				String category = Tools.categoryFinder(fb.getMessage()).firstElement();
@@ -518,12 +517,89 @@ public class CharacterCommands {
 		}
 	}
 
-	/*@BotCom(command = Handler.GIVE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
+	@BotCom(command = Handler.GIVE_ITEM , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void giveItem(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.GIVE_ITEM, Comparison.STARTS_WITH, ComLvl.PLAYER)){
-			//foo
+			try {
+				if(fb.getMentionned().size() > 0){
+					Folk target = fb.getMentionned().firstElement();
+					String state = CharacterManager.getInventoryStateFromDisNick(target.getDiscriminator(), target.getNick());
+					if(state != null && state.equals("u")){
+						if(Tools.categoryFinder(fb.getMessage()).size() > 0){
+							Vector<String> vec= Tools.lastCategoryAndArgumentsFinder(fb.getMessage(), ",", true);
+							String category = vec.firstElement();
+							if(vec.size() > 1){
+								String str = vec.elementAt(1);
+								if(str.contains(" ")){
+									try{
+										int qty = Integer.parseInt(str.substring(0, str.indexOf(" ")));
+										if (qty < 0){
+											qty = 0;
+										}
+										String item = str.substring(str.indexOf(" ") + 1);
+										if(InventoryManager.hasCategoryFromdisNick(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category)){
+											if(InventoryManager.doesItemExist(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, category)){
+												int available = InventoryManager.getItemQty(fb.getAuthorDiscriminator(), fb.getAuthorNick(), category, item);
+												if(qty <= available){
+													String recieved = "recieved";
+													if(!InventoryManager.doesCategoryExist(recieved)){
+														InventoryManager.addCategory(recieved, false);
+													}
+													if(!InventoryManager.hasCategoryFromdisNick(target.getDiscriminator(), target.getNick(), recieved)){
+														InventoryManager.boundCategoryToCharacter(target.getDiscriminator(), target.getNick(), recieved, InventoryManager.getNextCategoryPosition(target.getDiscriminator(), target.getNick()));
+													}
+													InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, -qty, category);
+													InventoryManager.addUpdateItem(target.getDiscriminator(), target.getNick(), item, qty, recieved);
+													Tools.sendMessage(fb.getAuthorNick() + " gave " + item + "*" + qty + " to " + target.getNick() + "!");
+													
+													if(category.equals("recieved") && InventoryManager.isCategoryEmpty(fb.getAuthorDiscriminator(), fb.getAuthorNick(), "recieved")){
+														InventoryManager.deleteCustomCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), "recieved");
+													}
+													
+												}
+												else{
+													Tools.sendMessage("You don't have enough " + item + "s, " + fb.getAuthorNick() + ".");
+												}
+											}
+											else{
+												Tools.sendMessage("You don't have any " + item +" in your " + category + ", " + fb.getAuthorNick() + "!");
+											}
+										}
+										else{
+											Tools.sendMessage("You don't have that category in your inventory, " + fb.getAuthorNick() + "!");
+										}
+									}
+									catch(NumberFormatException e){
+										Tools.sendMessage("That was a weird number.");
+										System.out.println("STR " + str);
+										return;
+									}
+								}
+								else{
+									Tools.sendMessage("one item and one quantity are required");
+								}
+							}
+							else{
+								Tools.sendMessage("You need something to give.");
+							}
+						}
+						else{
+							Tools.sendMessage("You need to mention a category.");
+						}
+					}
+					else{
+						Tools.sendMessage(target.getNick() + "'s inventory is locked.");
+					}
+				}
+				else{
+					Tools.sendMessage("Who do you want to give something to?");
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-	}*/
+	}
 
 	@BotCom(command = Handler.SWAP , lvl = ComLvl.PLAYER, type = ComType.MSG, category = ComCategory.PLAYERS)
 	public void swapItem(FolkBox fb){
@@ -546,6 +622,10 @@ public class CharacterCommands {
 									InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, -(qty), category1);
 									InventoryManager.addUpdateItem(fb.getAuthorDiscriminator(), fb.getAuthorNick(), item, qty, category2);
 									Tools.sendMessage(qty + " " + item + " was moved from " + category1 + " to " + category2 +", " + fb.getAuthorNick() + "." );
+									
+									if(category1.equals("recieved") && InventoryManager.isCategoryEmpty(fb.getAuthorDiscriminator(), fb.getAuthorNick(), "recieved")){
+										InventoryManager.deleteCustomCategory(fb.getAuthorDiscriminator(), fb.getAuthorNick(), "recieved");
+									}
 								}
 								else{
 									Tools.sendMessage("You don't have enough of this or you used a negative quantity");

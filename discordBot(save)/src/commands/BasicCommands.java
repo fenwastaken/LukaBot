@@ -147,8 +147,8 @@ public class BasicCommands {
 	@BotCom(command = Handler.TEST, lvl = ComLvl.ADMIN, type = ComType.MSG, category = ComCategory.ADMINS)
 	public void test(FolkBox fb){
 		if(Tools.check(fb.getAuthorDiscriminator(), fb.getMessage(), Handler.TEST, Comparison.STARTS_WITH, ComLvl.ADMIN)){
-			Vector<String> vec = Tools.lastCategoryAndArgumentsFinder(fb.getMessage(), ",", false);
-			Tools.sendMessage("HERE: " + vec.toString());
+			String line = Tools.mentionRemover(fb);
+			Tools.sendMessage("HERE: " + line);
 			
 		}
 	}

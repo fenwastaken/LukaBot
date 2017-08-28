@@ -22,7 +22,7 @@ public class Handler {
 
 	
 	//infos
-	public static String versionNumber = "1.17";
+	public static String versionNumber = "1.18";
 	public static String botName = Details.NAME.substring(0, Details.NAME.indexOf("#"));
 
 	//global bot variables

@@ -725,5 +725,19 @@ public class Tools {
 		}
 		return ret;
 	}
+	
+	public static String mentionRemover(FolkBox fb){
+		String line = fb.getMessage();
+		for(Folk mention : fb.getMentionned()){
+			String name = "@" + mention.getNick();
+			if(line.contains(name)){
+				int start = line.indexOf(name);
+				line = line.substring(0, start) + line.substring(start + name.length());
+			}
+		}
+		line = line.replace("] ", "]");
+		line = line.replace("  ", " ");
+		return line;
+	}
 
 }

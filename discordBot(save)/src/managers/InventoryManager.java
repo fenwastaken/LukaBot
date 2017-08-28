@@ -96,7 +96,7 @@ public class InventoryManager {
 			return 1;
 		}
 		else{
-			remItem(discriminator, nick, name, quantity, category);
+			remItem(discriminator, nick, name, category);
 			return 0;
 		}
 	}
@@ -114,7 +114,7 @@ public class InventoryManager {
 		return 1;
 	}
 	
-	public static void remItem(String discriminator, String nick, String name, int quantity, String category) throws SQLException{
+	public static void remItem(String discriminator, String nick, String name, String category) throws SQLException{
 		int itemId = InventoryManager.getItemId(discriminator, nick, category, name);
 		String sql = "DELETE FROM public.inventory WHERE id = ?;";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
@@ -388,12 +388,26 @@ public class InventoryManager {
 	public static void deleteCustomCategory(String discriminator, String nick, String category) throws SQLException{
 		int customCategoryId = InventoryManager.getCategoryIdFromName(category);
 		int characterId = CharacterManager.getCharacterIdFromDiscNick(discriminator, nick);
-		System.out.println("HERE " + customCategoryId);
 		String sql = "DELETE FROM inventory_custom WHERE category_id = ? AND character_id = ?";
 		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
 		st.setInt(1, customCategoryId);
 		st.setInt(2, characterId);
 		st.execute();
+	}
+	
+	public static boolean isCategoryEmpty(String discriminator, String nick, String category) throws SQLException{
+		int characterId = CharacterManager.getCharacterIdFromDiscNick(discriminator, nick);
+		int categoryId = InventoryManager.getCategoryIdFromName(category);
+		String sql = "SELECT id FROM inventory WHERE character_id = ? AND category_id = ?";
+		PreparedStatement st = PostgreSQLJDBC.getConnection().prepareStatement(sql);
+		st.setInt(1, characterId);
+		st.setInt(2, categoryId);
+		boolean exists = true;
+		ResultSet rs = st.executeQuery();
+		while(rs.next()){
+			exists = false;
+		}
+		return exists;
 	}
 	
 	
